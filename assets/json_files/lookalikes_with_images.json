@@ -1,0 +1,218 @@
+[
+  {
+    "class": "Agaricus",
+    "safe_mushroom": {
+      "name": "Agaricus bisporus",
+      "description": "Edible button mushroom, widely cultivated.",
+      "image": "assets/images/Agaricus_bisporus.jpg"
+    },
+    "lookalike": {
+      "name": "Agaricus xanthodermus",
+      "description": "Poisonous yellow-staining Agaricus.",
+      "image": "assets/images/Agaricus_xanthodermus.jpg"
+    },
+    "differences": [
+      "Yellow staining when bruised, especially near base.",
+      "Strong phenol-like chemical odor.",
+      "Cap becomes flat earlier in growth."
+    ]
+  },
+  {
+    "class": "Amanita",
+    "safe_mushroom": {
+      "name": "Amanita caesarea",
+      "description": "Highly prized edible Amanita with orange cap and white gills.",
+      "image": "assets/images/amanita_caesarea.jpg"
+    },
+    "lookalike": {
+      "name": "Amanita phalloides",
+      "description": "Deadly poisonous 'Death Cap'.",
+      "image": "assets/images/Amanita_phalloides.jpg"
+    },
+    "differences": [
+      "Death cap has greenish to olive cap, not orange.",
+      "White gills and stem may look similar, but lacks striations.",
+      "Toxic even in small quantities; no safe preparation."
+    ]
+  },
+  {
+    "class": "Boletus",
+    "safe_mushroom": {
+      "name": "Boletus edulis",
+      "description": "Popular porcini, thick white stalk, no color change.",
+      "image": "assets/images/Boletus_edulis.jpg"
+    },
+    "lookalike": {
+      "name": "Rubroboletus satanas",
+      "description": "Toxic bolete, red pores, blue staining flesh.",
+      "image": "assets/images/Rubroboletus_eastwoodiae.jpg"
+    },
+    "differences": [
+      "Devil's bolete bruises blue when cut.",
+      "Red pores and stem distinguish it from B. edulis.",
+      "Unpleasant smell compared to nutty aroma of B. edulis."
+    ]
+  },
+  {
+    "class": "Cortinarius",
+    "safe_mushroom": {
+      "name": "Cortinarius caperatus",
+      "description": "Known as 'Gypsy mushroom', edible with wrinkled cap.",
+      "image": "assets/images/Cortinarius_caperatus.jpg"
+    },
+    "lookalike": {
+      "name": "Cortinarius orellanus",
+      "description": "Highly toxic, causes kidney failure.",
+      "image": "assets/images/Cortinarius_orellanus.png"
+    },
+    "differences": [
+      "Orellanus has brighter orange-brown cap.",
+      "Gills may remain more rust-colored than grey.",
+      "Toxicity not removed by cooking."
+    ]
+  },
+  {
+    "class": "Entoloma",
+    "safe_mushroom": {
+      "name": "Entoloma saepium",
+      "description": "Mild, edible species found near hedges.",
+      "image": "assets/images/entoloma-sepium.jpg"
+    },
+    "lookalike": {
+      "name": "Entoloma sinuatum",
+      "description": "Deadly Entoloma, white gills and foul smell.",
+      "image": "assets/images/entoloma-sinuatum.jpg"
+    },
+    "differences": [
+      "Sinuatum has white gills that turn yellowish.",
+      "Larger size and more bulbous base.",
+      "Causes gastrointestinal distress within hours."
+    ]
+  },
+  {
+    "class": "Exidia",
+    "safe_mushroom": {
+      "name": "Exidia recisa",
+      "description": "Jelly-like brownish fungus, edible when cooked.",
+      "image": "assets/images/exidia-recisa.jpg"
+    },
+    "lookalike": {
+      "name": "Exidia glandulosa",
+      "description": "May cause stomach upset if eaten raw.",
+      "image": "assets/images/exidia-glandulosa.jpg"
+    },
+    "differences": [
+      "Glandulosa is black and firmer.",
+      "Recisa is amber-brown and more gelatinous.",
+      "Glandulosa sometimes confused with wood ear fungus."
+    ]
+  },
+  {
+    "class": "Hygrocybe",
+    "safe_mushroom": {
+      "name": "Hygrocybe conica",
+      "description": "Witch's hat, brightly colored and mildly toxic raw.",
+      "image": "assets/images/hygrocybe-conica.jpg"
+    },
+    "lookalike": {
+      "name": "Hygrocybe nigrescens",
+      "description": "Similar blackening species, may be inedible.",
+      "image": "assets/images/Hygrocybe nigrescens.jpg"
+    },
+    "differences": [
+      "Both blacken with age; nigrescens does so faster.",
+      "Conica more conical and waxy.",
+      "Neither is highly toxic, but may cause upset raw."
+    ]
+  },
+  {
+    "class": "Inocybe",
+    "safe_mushroom": {
+      "name": "Inocybe erubescens",
+      "description": "Rarely consumed, due to risk of confusion.",
+      "image": "assets/images/inocybe-erubescens.jpg"
+    },
+    "lookalike": {
+      "name": "Inocybe geophylla",
+      "description": "Highly poisonous, contains muscarine.",
+      "image": "assets/images/inocybe-geophylla.jpg"
+    },
+    "differences": [
+      "White cap with lilac tint in geophylla.",
+      "Both have fibrous caps, but geophylla is smaller.",
+      "Causes salivation, sweating, and even death."
+    ]
+  },
+  {
+    "class": "Lactarius",
+    "safe_mushroom": {
+      "name": "Lactarius deliciosus",
+      "description": "Orange milkcap, edible and popular.",
+      "image": "assets/images/lactarius-deliciosus.jpg"
+    },
+    "lookalike": {
+      "name": "Lactarius torminosus",
+      "description": "Woolly milkcap, causes stomach issues.",
+      "image": "assets/images/lactarius-torminosus.jpg"
+    },
+    "differences": [
+      "Torminosus has hairy cap edges.",
+      "Deliciosus milk is carrot-orange, torminosus is white.",
+      "Torminosus requires boiling to reduce toxicity."
+    ]
+  },
+  {
+    "class": "Pluteus",
+    "safe_mushroom": {
+      "name": "Pluteus cervinus",
+      "description": "Deer mushroom, pink gills, edible when young.",
+      "image": "assets/images/Pluteus_cervinus.jpg"
+    },
+    "lookalike": {
+      "name": "Pluteus salicinus",
+      "description": "Mildly psychoactive species.",
+      "image": "assets/images/pluteus-salicinus.jpg"
+    },
+    "differences": [
+      "Salicinus has bluish tint near gills and stem.",
+      "Cervinus has more even brown cap.",
+      "Avoid psychoactive species unless properly identified."
+    ]
+  },
+  {
+    "class": "Russula",
+    "safe_mushroom": {
+      "name": "Russula cyanoxantha",
+      "description": "Brittlegill, edible with mild taste.",
+      "image": "assets/images/Russula_cyanoxantha.jpg"
+    },
+    "lookalike": {
+      "name": "Russula emetica",
+      "description": "Vomiting russula, toxic and acrid.",
+      "image": "assets/images/russula-emetica.jpg"
+    },
+    "differences": [
+      "Emetica has bright red cap and burns tongue.",
+      "Cyanoxantha gills are flexible and cream-colored.",
+      "Taste test: emetica is very hot and bitter."
+    ]
+  },
+  {
+    "class": "Suillus",
+    "safe_mushroom": {
+      "name": "Suillus luteus",
+      "description": "Slippery Jack, edible after skin is peeled.",
+      "image": "assets/images/suillus-luteus.jpg"
+    },
+    "lookalike": {
+      "name": "Suillus granulatus",
+      "description": "Less desirable; may cause GI upset raw.",
+      "image": "assets/images/suillus-granulatus.jpg"
+    },
+    "differences": [
+      "Granulatus lacks ring on stem unlike luteus.",
+      "Cap is thinner and more yellowish.",
+      "Slime layer more persistent on granulatus."
+    ]
+  }
+]
