@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../core/services/auth_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/custom_button.dart';
-import 'loginscreen.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -27,28 +27,35 @@ class _SignUpScreenState extends State<SignUpScreen> {
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
 
-      // Simulate local storage saving delay
-      await Future.delayed(const Duration(milliseconds: 800));
+      try {
+        final authService = AuthService();
+        await authService.signUp(
+          email: _emailController.text.trim(),
+          password: _passwordController.text.trim(),
+          name: _nameController.text.trim(),
+        );
 
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('name', _nameController.text.trim());
-      await prefs.setString(
-        'email',
-        _emailController.text.trim().toLowerCase(),
-      );
-      await prefs.setString('password', _passwordController.text);
+        // Save name if needed (e.g., to Firestore or Update Profile) - skipping for now as per plan focus on Auth
+        // Just setting name in sharedprefs for compatibility if other parts use it, or we could update firebase profile
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('name', _nameController.text.trim());
 
-      setState(() => _isLoading = false);
+        if (!mounted) return;
+        _showSuccessSnackBar();
 
-      if (!mounted) return;
-
-      _showSuccessSnackBar();
-
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (_) => const LoginScreen()),
-        (route) => false, // Clears the stack so user can't go back to signup
-      );
+        // Navigate to MainScreen or let AuthWrapper handle it
+        Navigator.popUntil(context, (route) => route.isFirst);
+      } catch (e) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toString()),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
+      } finally {
+        if (mounted) setState(() => _isLoading = false);
+      }
     }
   }
 

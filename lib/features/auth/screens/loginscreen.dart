@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../core/services/auth_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/custom_button.dart';
-import '../../home/screens/main_screen.dart';
 import 'signupscreen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -23,27 +22,26 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isLoading = false;
 
   Future<void> _login() async {
+    if (!_formKey.currentState!.validate()) return;
+
     setState(() => _isLoading = true);
 
-    // Simulate network delay for better UX feel
-    await Future.delayed(const Duration(milliseconds: 800));
-
-    final prefs = await SharedPreferences.getInstance();
-    final storedEmail = prefs.getString('email');
-    final storedPassword = prefs.getString('password');
-
-    setState(() => _isLoading = false);
-
-    if (_emailController.text == storedEmail &&
-        _passwordController.text == storedPassword) {
-      if (!mounted) return;
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const MainScreen()),
+    try {
+      final authService = AuthService(); // Ideally inject this
+      final user = await authService.signIn(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
       );
-    } else {
+
+      if (user != null) {
+        if (!mounted) return;
+        Navigator.popUntil(context, (route) => route.isFirst);
+      }
+    } catch (e) {
       if (!mounted) return;
-      _showErrorSnackBar('Invalid email or password');
+      _showErrorSnackBar(e.toString());
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -124,18 +122,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     onPressed: () =>
                         setState(() => _obscurePassword = !_obscurePassword),
-                  ),
-                ),
-
-                const SizedBox(height: 12),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () {}, // Add Forgot Password logic
-                    child: Text(
-                      'Forgot Password?',
-                      style: TextStyle(color: AppColors.primary),
-                    ),
                   ),
                 ),
 

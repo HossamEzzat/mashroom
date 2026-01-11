@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "895680768924",
+    "project_id": "mashroom-5bfaf",
+    "storage_bucket": "mashroom-5bfaf.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:895680768924:android:012f3f29ff40501cb7f659",
+        "android_client_info": {
+          "package_name": "com.hossamharera.mashroom"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAT6gFbovz5TifZBtsHIoMDfRToBKRXKgY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

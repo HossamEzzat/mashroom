@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/services/auth_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/feature_card.dart';
@@ -163,12 +164,40 @@ class _HomeScreenState extends State<HomeScreen>
       ),
       actions: [
         IconButton(
-          onPressed: () {},
+          onPressed: () async {
+            // Show confirmation dialog or just logout
+            final shouldLogout = await showDialog<bool>(
+              context: context,
+              builder: (context) => AlertDialog(
+                title: const Text('Logout'),
+                content: const Text('Are you sure you want to logout?'),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context, false),
+                    child: const Text('Cancel'),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.pop(context, true),
+                    child: const Text(
+                      'Logout',
+                      style: TextStyle(color: Colors.red),
+                    ),
+                  ),
+                ],
+              ),
+            );
+
+            if (shouldLogout == true) {
+              await AuthService().signOut();
+              // AuthWrapper will handle navigation
+            }
+          },
           icon: CircleAvatar(
             radius: 18,
             backgroundColor: AppColors.primary.withOpacity(0.1),
             child: const Icon(
-              Icons.person_outline,
+              Icons
+                  .logout_rounded, // Changed icon to indicate logout availability or keep person
               color: AppColors.primary,
               size: 20,
             ),
