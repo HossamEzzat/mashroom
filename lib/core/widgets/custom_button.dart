@@ -123,6 +123,7 @@ class _CustomButtonState extends State<CustomButton>
           widget.text,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.w700,
+            color: Colors.white,
             letterSpacing: 0.5,
           ),
         ),

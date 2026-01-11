@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../../models/onboardingmodel.dart';
 import '../../auth/screens/login_signup_onboard_screen.dart';
-import '../../auth/screens/loginscreen.dart';
 
 class OnBoardingScreen extends StatefulWidget {
   const OnBoardingScreen({super.key});
@@ -42,7 +41,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen>
           TextButton(
             onPressed: () => Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (_) => const LoginScreen()),
+              MaterialPageRoute(builder: (_) => const LoginSignupOnboard()),
             ),
             child: Text(
               "Skip",

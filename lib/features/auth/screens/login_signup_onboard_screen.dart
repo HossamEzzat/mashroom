@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/widgets/custom_button.dart';
-import '../../home/screens/main_screen.dart';
 import 'loginscreen.dart';
 import 'signupscreen.dart';
 
@@ -86,79 +85,12 @@ class LoginSignupOnboard extends StatelessWidget {
                     ),
                   ),
 
-                  const SizedBox(height: 32),
-
-                  // Social Login Section
-                  Row(
-                    children: [
-                      const Expanded(child: Divider(color: Colors.white38)),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: Text(
-                          "Or continue with",
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.6),
-                          ),
-                        ),
-                      ),
-                      const Expanded(child: Divider(color: Colors.white38)),
-                    ],
-                  ),
-
-                  const SizedBox(height: 24),
-
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _SocialIcon(
-                        icon: Icons.g_mobiledata,
-                        onTap: () => _skipToMain(context),
-                      ),
-                      const SizedBox(width: 20),
-                      _SocialIcon(
-                        icon: Icons.facebook,
-                        onTap: () => _skipToMain(context),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 52),
                 ],
               ),
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  void _skipToMain(BuildContext context) {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => const MainScreen()),
-    );
-  }
-}
-
-/// Private helper for Social Icons
-class _SocialIcon extends StatelessWidget {
-  final IconData icon;
-  final VoidCallback onTap;
-
-  const _SocialIcon({required this.icon, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(50),
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          border: Border.all(color: Colors.white24),
-          color: Colors.white.withOpacity(0.1),
-        ),
-        child: Icon(icon, color: Colors.white, size: 28),
       ),
     );
   }
