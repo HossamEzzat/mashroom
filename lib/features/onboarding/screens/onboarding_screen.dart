@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../auth/screens/loginscreen.dart';
-import '../../auth/screens/login_signup_onboard_screen.dart';
+
 import '../../../models/onboardingmodel.dart';
+import '../../auth/screens/login_signup_onboard_screen.dart';
+import '../../auth/screens/loginscreen.dart';
 
 class OnBoardingScreen extends StatefulWidget {
   const OnBoardingScreen({super.key});
@@ -28,8 +29,8 @@ class _OnBoardingScreenState extends State<OnBoardingScreen>
 
     _slideAnimation =
         Tween<Offset>(begin: const Offset(0, 0.5), end: Offset.zero).animate(
-            CurvedAnimation(
-                parent: _animationController, curve: Curves.easeOut));
+          CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
+        );
 
     controller.addListener(() {
       _animationController.forward(from: 0); // Reset animation on page change
@@ -62,9 +63,10 @@ class _OnBoardingScreenState extends State<OnBoardingScreen>
               child: const Text(
                 "Skip",
                 style: TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black54),
+                  fontSize: 17,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black54,
+                ),
               ),
             ),
         ],
@@ -139,8 +141,9 @@ class _OnBoardingScreenState extends State<OnBoardingScreen>
                 );
               } else {
                 await controller.nextPage(
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeInOut);
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                );
               }
             },
             child: const CircleAvatar(

@@ -1,7 +1,9 @@
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:flutter/services.dart';
+
+import '../../../core/widgets/loading_indicator.dart';
 import '../../../models/disease_info.dart';
 
 class MushroomInfoScreen extends StatefulWidget {
@@ -25,71 +27,99 @@ class MushroomInfoScreenState extends State<MushroomInfoScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      fetchMushroomInformation(widget.prediction);
-    });
+    _loadData();
   }
 
-  String normalizePrediction(String prediction) {
-    return prediction.trim().toLowerCase();
+  Future<void> _loadData() async {
+    // Simulate slight delay for smooth transition
+    await Future.delayed(const Duration(milliseconds: 400));
+    mushroomData = MushroomInfo.getMushroomData(
+      widget.prediction.trim().toLowerCase(),
+    );
+    if (mounted) setState(() => isLoading = false);
   }
 
-  void fetchMushroomInformation(String prediction) {
-    mushroomData =
-        MushroomInfo.getMushroomData(normalizePrediction(prediction));
-    setState(() {
-      isLoading = false;
-    });
-  }
+  @override
+  Widget build(BuildContext context) {
+    if (isLoading)
+      return const Scaffold(
+        body: LoadingIndicator(message: "Fetching detailed specs..."),
+      );
 
-  void _showBottomSheet(String title, String content) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) => Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
+    final bool isSafe =
+        mushroomData.healthStatus.toLowerCase().contains("safe") ||
+        mushroomData.healthStatus.toLowerCase().contains("edible");
+
+    return Scaffold(
+      body: CustomScrollView(
+        slivers: [
+          _buildSliverAppBar(isSafe),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 24, 20, 100),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildHeaderSection(isSafe),
+                  const SizedBox(height: 32),
+                  _buildExpandableInfoCard(
+                    title: "Botanical Overview",
+                    content: mushroomData.overview,
+                    icon: Icons.auto_stories_outlined,
                   ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.copy),
-                  onPressed: () {
-                    Clipboard.setData(ClipboardData(text: content));
-                    Navigator.pop(context);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Copied to clipboard!')),
-                    );
-                  },
-                ),
-                IconButton(
-                  icon: const Icon(Icons.share),
-                  onPressed: () {
-                    Share.share(content);
-                    Navigator.pop(context);
-                  },
-                ),
-              ],
+                  const SizedBox(height: 16),
+                  _buildVerificationNotice(),
+                  const SizedBox(height: 16),
+                  _buildListSection(
+                    "Recommended Recipes",
+                    mushroomData.recommendedRecipes,
+                    Icons.restaurant,
+                  ),
+                  const SizedBox(height: 16),
+                  _buildListSection(
+                    "Alternative Suggestions",
+                    mushroomData.alternativeSuggestions,
+                    Icons.swap_calls,
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 10),
-            Text(
-              content,
-              style: const TextStyle(fontSize: 16),
-              textAlign: TextAlign.justify,
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () =>
+            Share.share("Check out this ${mushroomData.mushroomName} I found!"),
+        backgroundColor: const Color(0xffb65ec4),
+        icon: const Icon(Icons.share, color: Colors.white),
+        label: const Text(
+          "Share Report",
+          style: TextStyle(color: Colors.white),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSliverAppBar(bool isSafe) {
+    return SliverAppBar(
+      expandedHeight: 300,
+      pinned: true,
+      stretch: true,
+      backgroundColor: isSafe ? Colors.green[700] : Colors.red[700],
+      flexibleSpace: FlexibleSpaceBar(
+        stretchModes: const [StretchMode.zoomBackground],
+        background: Stack(
+          fit: StackFit.expand,
+          children: [
+            Image.file(File(widget.imagePath), fit: BoxFit.cover),
+            const DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Colors.transparent, Colors.black54],
+                ),
+              ),
             ),
           ],
         ),
@@ -97,139 +127,102 @@ class MushroomInfoScreenState extends State<MushroomInfoScreen> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Mushroom Information',
-          style: TextStyle(color: Colors.white),
-        ),
-        backgroundColor: const Color(0xffb65ec4),
-        iconTheme: const IconThemeData(color: Colors.white),
-      ),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildImageSection(),
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Center(
-                            child: Column(children: [
-                          Text(
-                            mushroomData.mushroomName,
-                            style: const TextStyle(
-                              fontSize: 26,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xff8a3d98),
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          _buildSafetyBadge(mushroomData.healthStatus),
-                          const SizedBox(height: 10),
-                          _buildRiskScoreBadge(mushroomData.healthStatus),
-                        ])),
-                        const SizedBox(height: 20),
-                        _buildTile(
-                          title: "Overview",
-                          content: mushroomData.overview,
-                          icon: Icons.info_outline,
-                        ),
-                        _buildTile(
-                          title: "Health Status",
-                          content: mushroomData.healthStatus,
-                          icon: Icons.health_and_safety_outlined,
-                        ),
-                        _buildTile(
-                          title: "Recommended Recipes",
-                          content: mushroomData.recommendedRecipes.join("\n"),
-                          icon: Icons.restaurant_menu,
-                        ),
-                        _buildTile(
-                          title: "Alternative Suggestions",
-                          content:
-                              mushroomData.alternativeSuggestions.join("\n"),
-                          icon: Icons.sync_alt,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+  Widget _buildHeaderSection(bool isSafe) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Text(
+                mushroomData.mushroomName,
+                style: const TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: -0.5,
+                ),
               ),
             ),
+            _buildSafetyIcon(isSafe),
+          ],
+        ),
+        const SizedBox(height: 12),
+        _buildRiskScoreMeter(isSafe),
+      ],
     );
   }
 
-  Widget _buildRiskScoreBadge(String healthStatus) {
-    int riskScore = 50;
-    IconData icon = Icons.error_outline;
-    String label = "Moderate Risk";
-
-    final lower = healthStatus.toLowerCase();
-
-    if (lower.contains("safe") || lower.contains("edible")) {
-      riskScore = 10;
-      icon = Icons.check_circle;
-      label = "Safe to Eat";
-    } else if (lower.contains("toxic") || lower.contains("poisonous")) {
-      riskScore = 90;
-      icon = Icons.warning_amber_rounded;
-      label = "Highly Toxic";
-    } else if (lower.contains("caution") || lower.contains("risk")) {
-      riskScore = 60;
-      icon = Icons.error_outline;
-      label = "Use with Caution";
-    }
-
-    Color badgeColor;
-    if (riskScore <= 30) {
-      badgeColor = Colors.green;
-    } else if (riskScore <= 70) {
-      badgeColor = Colors.orange;
-    } else {
-      badgeColor = Colors.red;
-    }
-
+  Widget _buildSafetyIcon(bool isSafe) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: badgeColor.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(30),
-        border: Border.all(color: badgeColor),
+        color: isSafe
+            ? Colors.green.withOpacity(0.1)
+            : Colors.red.withOpacity(0.1),
+        shape: BoxShape.circle,
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, color: badgeColor, size: 18),
-          const SizedBox(width: 6),
-          Text(
-            label,
-            style: TextStyle(
-              color: badgeColor,
-              fontWeight: FontWeight.bold,
-              fontSize: 14,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: badgeColor.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Text(
-              "Risk Score: $riskScore",
+      child: Icon(
+        isSafe ? Icons.verified_user : Icons.gpp_maybe,
+        color: isSafe ? Colors.green : Colors.red,
+        size: 32,
+      ),
+    );
+  }
+
+  Widget _buildRiskScoreMeter(bool isSafe) {
+    final double score = isSafe ? 0.15 : 0.85;
+    final Color color = isSafe ? Colors.green : Colors.red;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(
+              "Safety Level",
               style: TextStyle(
-                color: badgeColor,
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
+                color: Colors.grey[600],
+                fontWeight: FontWeight.w600,
               ),
+            ),
+            const Spacer(),
+            Text(
+              isSafe ? "High Confidence" : "Extreme Risk",
+              style: TextStyle(color: color, fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(10),
+          child: LinearProgressIndicator(
+            value: score,
+            minHeight: 10,
+            backgroundColor: color.withOpacity(0.1),
+            valueColor: AlwaysStoppedAnimation<Color>(color),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildVerificationNotice() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.amber.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(color: Colors.amber.withOpacity(0.3)),
+      ),
+      child: const Row(
+        children: [
+          Icon(Icons.biotech, color: Colors.amber),
+          SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              "Always verify AI results with physical traits like gill attachment and spore print.",
+              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
             ),
           ),
         ],
@@ -237,69 +230,41 @@ class MushroomInfoScreenState extends State<MushroomInfoScreen> {
     );
   }
 
-  Widget _buildTile({
+  Widget _buildExpandableInfoCard({
     required String title,
     required String content,
     required IconData icon,
   }) {
-    return ListTile(
-      leading: Icon(icon, color: const Color(0xffb65ec4)),
-      title: Text(
-        title,
-        style: const TextStyle(
-          fontWeight: FontWeight.bold,
-          fontSize: 18,
-        ),
-      ),
-      trailing: const Icon(Icons.chevron_right),
-      onTap: () => _showBottomSheet(title, content),
-    );
-  }
-
-  Widget _buildImageSection() {
-    final file = File(widget.imagePath);
-    return ClipRRect(
-      borderRadius: const BorderRadius.only(
-        bottomLeft: Radius.circular(30),
-        bottomRight: Radius.circular(30),
-      ),
-      child: file.existsSync()
-          ? Image.file(
-              file,
-              width: double.infinity,
-              height: 210,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) => _buildErrorImage(),
-            )
-          : _buildErrorImage(),
-    );
-  }
-
-  Widget _buildSafetyBadge(String healthStatus) {
-    bool isSafe = healthStatus.toLowerCase().contains("safe") ||
-        healthStatus.toLowerCase().contains("edible");
-    Color badgeColor = isSafe ? Colors.green : Colors.red;
-    IconData badgeIcon = isSafe ? Icons.check_circle : Icons.warning;
-    String label = isSafe ? "✅ Safe to Eat" : "⚠️ Potentially Toxic";
-
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: badgeColor.withValues(alpha: 0.2),
-        borderRadius: BorderRadius.circular(30),
-        border: Border.all(color: badgeColor),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.grey[200]!),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(badgeIcon, color: badgeColor, size: 18),
-          const SizedBox(width: 6),
+          Row(
+            children: [
+              Icon(icon, color: const Color(0xffb65ec4), size: 20),
+              const SizedBox(width: 8),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
           Text(
-            label,
+            content,
             style: TextStyle(
-              color: badgeColor,
-              fontWeight: FontWeight.bold,
-              fontSize: 14,
+              color: Colors.grey[800],
+              height: 1.5,
+              fontSize: 15,
             ),
           ),
         ],
@@ -307,20 +272,37 @@ class MushroomInfoScreenState extends State<MushroomInfoScreen> {
     );
   }
 
-  Widget _buildErrorImage() {
-    return Container(
-      width: double.infinity,
-      height: 210,
-      color: Colors.grey[300],
-      child: const Center(
-        child: Text(
-          'Image not available',
-          style: TextStyle(
-            fontSize: 16,
-            color: Colors.black54,
+  Widget _buildListSection(String title, List<String> items, IconData icon) {
+    if (items.isEmpty) return const SizedBox.shrink();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: Text(
+            title,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
           ),
         ),
-      ),
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: items
+              .map(
+                (item) => Chip(
+                  avatar: Icon(icon, size: 16, color: const Color(0xffb65ec4)),
+                  label: Text(item),
+                  backgroundColor: Colors.white,
+                  side: BorderSide(color: Colors.grey[300]!),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              )
+              .toList(),
+        ),
+      ],
     );
   }
 }

@@ -1,9 +1,12 @@
 class MushroomData {
   final String mushroomName;
-  final String healthStatus;
+  final String healthStatus; // Healthy, Unhealthy, Caution
   final String overview;
   final List<String> recommendedRecipes;
   final List<String> alternativeSuggestions;
+  final bool isToxic; // Safety flag
+  final Map<String, String>?
+  identificationTraits; // {Cap: 'Convex', Gills: 'Free'}
 
   MushroomData({
     required this.mushroomName,
@@ -11,110 +14,70 @@ class MushroomData {
     required this.overview,
     required this.recommendedRecipes,
     required this.alternativeSuggestions,
+    this.isToxic = false,
+    this.identificationTraits,
   });
+
+  // Factory to safely create data from JSON
+  factory MushroomData.fromMap(Map<String, dynamic> map) {
+    return MushroomData(
+      mushroomName: map['name'] ?? 'Unknown',
+      healthStatus: map['status'] ?? 'Unknown',
+      overview: map['overview'] ?? '',
+      recommendedRecipes: List<String>.from(map['recipes'] ?? []),
+      alternativeSuggestions: List<String>.from(map['alternatives'] ?? []),
+      isToxic: map['isToxic'] ?? false,
+      identificationTraits: Map<String, String>.from(map['traits'] ?? {}),
+    );
+  }
 }
 
 class MushroomInfo {
-  static final Map<String, MushroomData> mushroomInfo = {
+  static final Map<String, MushroomData> _data = {
     'agaricus': MushroomData(
-      mushroomName: 'Agaricus',
+      mushroomName: 'Agaricus (Button Mushroom)',
       healthStatus: 'Healthy',
-      overview: 'Includes edible species like Agaricus bisporus, rich in nutrients, but some lookalikes are toxic.',
+      overview: 'Includes edible species like A. bisporus. High in B vitamins.',
       recommendedRecipes: ['Grilled Agaricus', 'Stuffed Button Mushrooms'],
-      alternativeSuggestions: ['Pleurotus ostreatus', 'Lentinus edodes'],
+      alternativeSuggestions: ['Pleurotus ostreatus'],
+      isToxic: false,
+      identificationTraits: {
+        'Cap': 'Smooth, white to brown',
+        'Gills': 'Pink when young, turning dark brown',
+        'Stem': 'Thick with a distinct ring',
+      },
     ),
     'amanita': MushroomData(
-      mushroomName: 'Amanita',
+      mushroomName: 'Amanita (Death Cap / Fly Agaric)',
       healthStatus: 'Unhealthy',
-      overview: 'Includes extremely poisonous species such as Amanita phalloides (Death Cap). Avoid consumption.',
+      isToxic: true,
+      overview:
+          'Extremely dangerous. Contains amatoxins which cause liver failure.',
       recommendedRecipes: [],
-      alternativeSuggestions: ['Cantharellus cibarius', 'Boletus edulis'],
-    ),
-    'boletus': MushroomData(
-      mushroomName: 'Boletus',
-      healthStatus: 'Healthy',
-      overview: 'Includes popular edible species like Boletus edulis (porcini). Nutty and rich flavor.',
-      recommendedRecipes: ['Porcini Risotto', 'Sautéed Boletus'],
-      alternativeSuggestions: [],
-    ),
-    'cortinarius': MushroomData(
-      mushroomName: 'Cortinarius',
-      healthStatus: 'Unhealthy',
-      overview: 'Contains highly toxic species such as Cortinarius orellanus. Can cause kidney damage.',
-      recommendedRecipes: [],
-      alternativeSuggestions: ['Lactarius deliciosus', 'Russula cyanoxantha'],
-    ),
-    'entoloma': MushroomData(
-      mushroomName: 'Entoloma',
-      healthStatus: 'Unhealthy',
-      overview: 'Many Entoloma species are toxic. Proper identification is difficult and consumption is risky.',
-      recommendedRecipes: [],
-      alternativeSuggestions: ['Pluteus cervinus'],
-    ),
-    'exidia': MushroomData(
-      mushroomName: 'Exidia',
-      healthStatus: 'Healthy',
-      overview: 'Jelly fungi often used in soups. Exidia recisa is considered edible, while others may be mildly toxic.',
-      recommendedRecipes: ['Exidia Soup', 'Stir-fried Jelly Fungus'],
-      alternativeSuggestions: [],
-    ),
-    'hygrocybe': MushroomData(
-      mushroomName: 'Hygrocybe',
-      healthStatus: 'Caution',
-      overview: 'Brightly colored mushrooms; most are inedible or mildly toxic. Rarely consumed.',
-      recommendedRecipes: [],
-      alternativeSuggestions: ['Agaricus bisporus'],
-    ),
-    'inocybe': MushroomData(
-      mushroomName: 'Inocybe',
-      healthStatus: 'Unhealthy',
-      overview: 'Dangerously toxic genus. Contains muscarine and can be fatal. Never consume.',
-      recommendedRecipes: [],
-      alternativeSuggestions: ['Lentinus edodes', 'Pleurotus eryngii'],
-    ),
-    'lactarius': MushroomData(
-      mushroomName: 'Lactarius',
-      healthStatus: 'Healthy',
-      overview: 'Includes species like Lactarius deliciosus, known for its orange milk and pleasant taste.',
-      recommendedRecipes: ['Fried Lactarius', 'Lactarius Stew'],
-      alternativeSuggestions: ['Russula cyanoxantha'],
-    ),
-    'pluteus': MushroomData(
-      mushroomName: 'Pluteus',
-      healthStatus: 'Healthy',
-      overview: 'Some species like Pluteus cervinus are edible, others may have psychoactive effects.',
-      recommendedRecipes: ['Grilled Pluteus', 'Mushroom Pilaf'],
-      alternativeSuggestions: ['Agaricus bisporus'],
-    ),
-    'russula': MushroomData(
-      mushroomName: 'Russula',
-      healthStatus: 'Caution',
-      overview: 'Some Russula species are edible, others like Russula emetica are toxic. Taste testing not recommended.',
-      recommendedRecipes: [],
-      alternativeSuggestions: ['Lactarius deliciosus'],
-    ),
-    'suillus': MushroomData(
-      mushroomName: 'Suillus',
-      healthStatus: 'Healthy',
-      overview: 'Slimy-capped mushrooms, often edible like Suillus luteus. Best peeled and cooked.',
-      recommendedRecipes: ['Suillus Soup', 'Pan-Fried Suillus'],
-      alternativeSuggestions: ['Boletus edulis'],
+      alternativeSuggestions: ['Agaricus bisporus (SAFE LOOKALIKES)'],
+      identificationTraits: {
+        'Cap': 'Often has white warts/spots',
+        'Gills': 'White and free from the stem',
+        'Base': 'Check for a bulbous volva (cup) at the base',
+      },
     ),
   };
 
   static MushroomData getMushroomData(String prediction) {
-    String normalizedPrediction = prediction.trim().toLowerCase();
+    // Regex helps remove special characters or scientific sub-names
+    final normalized = prediction.trim().toLowerCase().split(' ').first;
 
-    if (mushroomInfo.containsKey(normalizedPrediction)) {
-      return mushroomInfo[normalizedPrediction]!;
-    } else {
-      return MushroomData(
-        mushroomName: 'Unknown Mushroom',
-        healthStatus: 'Unknown',
-        overview: 'No information available for the given mushroom.',
-        recommendedRecipes: [],
-        alternativeSuggestions: [],
-      );
-    }
+    return _data[normalized] ?? _buildUnknown(prediction);
+  }
+
+  static MushroomData _buildUnknown(String name) {
+    return MushroomData(
+      mushroomName: name.isNotEmpty ? name : 'Unknown Specimen',
+      healthStatus: 'Unknown',
+      overview: 'Safety data not available. Do not consume.',
+      recommendedRecipes: [],
+      alternativeSuggestions: [],
+      isToxic: true, // Default to true for safety if unknown
+    );
   }
 }

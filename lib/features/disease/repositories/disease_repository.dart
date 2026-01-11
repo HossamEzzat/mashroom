@@ -1,42 +1,69 @@
+import 'dart:convert';
 import 'dart:io';
+
 import '../../../models/prediction_result.dart';
 
-/// Repository for handling mushroom disease/classification operations
-class DiseaseRepository {
-  /// Classify a mushroom image
-  ///
-  /// This is a placeholder implementation that returns mock data.
-  /// In a real application, this would:
-  /// - Send the image to a backend API or ML model
-  /// - Process the response
-  /// - Return the prediction results
+/// Define an interface to allow for easy mocking/testing
+abstract class IDiseaseRepository {
+  Future<PredictionResult> classifyImage(File imageFile);
+}
+
+class DiseaseRepository implements IDiseaseRepository {
+  static const String _apiEndpoint = 'https://api.mushroom-ai.com/v1/classify';
+
+  @override
   Future<PredictionResult> classifyImage(File imageFile) async {
     try {
-      // Simulate network delay
-      await Future.delayed(const Duration(seconds: 2));
+      // 1. Validate Image
+      if (!await imageFile.exists()) {
+        return PredictionResult.error('Image file does not exist');
+      }
 
-      // TODO: Replace this with actual API call or ML model inference
-      // Example API call:
-      // final response = await http.post(
-      //   Uri.parse('YOUR_API_ENDPOINT'),
-      //   body: {'image': base64Encode(await imageFile.readAsBytes())},
-      // );
-      // return PredictionResult.fromJson(jsonDecode(response.body));
+      // 2. Prepare Data (Optional: Compress image here if using a real API)
+      final bytes = await imageFile.readAsBytes();
+      final base64Image = base64Encode(bytes);
 
-      // Mock response for demonstration
-      return PredictionResult(
-        prediction: 'Agaricus',
-        confidence: 0.85,
-        probabilities: {
-          'Agaricus': 0.85,
-          'Amanita': 0.10,
-          'Boletus': 0.03,
-          'Cantharellus': 0.02,
-        },
-      );
+      // 3. Network Call with Timeout
+      // For now, we keep the delay to simulate the ML inference time
+      await Future.delayed(const Duration(seconds: 1));
+
+      // 4. API Logic (Uncomment for production)
+      /*
+      final response = await http.post(
+        Uri.parse(_apiEndpoint),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'image': base64Image}),
+      ).timeout(const Duration(seconds: 15));
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return PredictionResult.fromJson(data);
+      } else {
+        return PredictionResult.error('Server Error: ${response.statusCode}');
+      }
+      */
+
+      // 5. Success Mock
+      return _generateMockSuccess();
+    } on SocketException {
+      return PredictionResult.error('No internet connection');
+    } on PathNotFoundException {
+      return PredictionResult.error('Image path is invalid');
     } catch (e) {
-      return PredictionResult.error(
-          'Failed to classify image: ${e.toString()}');
+      return PredictionResult.error('Unexpected error: ${e.toString()}');
     }
+  }
+
+  PredictionResult _generateMockSuccess() {
+    return PredictionResult(
+      prediction: 'Agaricus Bisporus',
+      confidence: 0.92,
+      probabilities: {
+        'Agaricus Bisporus': 0.92,
+        'Amanita Muscaria': 0.05,
+        'Boletus Edulis': 0.02,
+        'Other': 0.01,
+      },
+    );
   }
 }

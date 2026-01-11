@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mashroom/models/plant_model.dart';
+
 import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_theme.dart';
 
 class MushroomDetailScreen extends StatefulWidget {
   final Mushroom mushroom;
@@ -18,19 +18,27 @@ class _MushroomDetailScreenState extends State<MushroomDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final mushroom = widget.mushroom;
+    final isPoisonous = mushroom.type == 'Poisonous';
 
     return Scaffold(
       backgroundColor: AppColors.background,
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        backgroundColor: AppColors.background,
+        backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: const IconThemeData(color: AppColors.textPrimary),
-        actions: const [
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 8.0),
+          child: CircleAvatar(
+            backgroundColor: Colors.white.withOpacity(0.8),
+            child: const BackButton(color: Colors.black),
+          ),
+        ),
+        actions: [
           Padding(
-            padding: EdgeInsets.only(right: AppTheme.spacingM),
-            child: Icon(
-              Icons.local_florist_outlined,
-              color: AppColors.textPrimary,
+            padding: const EdgeInsets.only(right: 16),
+            child: CircleAvatar(
+              backgroundColor: Colors.white.withOpacity(0.8),
+              child: const Icon(Icons.favorite_border, color: Colors.red),
             ),
           ),
         ],
@@ -39,186 +47,210 @@ class _MushroomDetailScreenState extends State<MushroomDetailScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Image with Hero animation
-            Stack(
-              children: [
-                SizedBox(
-                  width: double.infinity,
-                  height: 350,
-                  child: PageView.builder(
-                    scrollDirection: Axis.vertical,
-                    itemCount: 3, // Same image, just for animation purpose
-                    onPageChanged: (value) => setState(() {
-                      currentIndex = value;
-                    }),
-                    itemBuilder: (context, index) => Hero(
-                      tag: mushroom.image,
-                      child: Image.asset(mushroom.image, fit: BoxFit.contain),
-                    ),
-                  ),
-                ),
-                Positioned(
-                  bottom: 15,
-                  right: 100,
-                  child: Column(
-                    children: List.generate(
-                      3,
-                      (index) => AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        margin: const EdgeInsets.only(bottom: 5),
-                        width: 7,
-                        height: index == currentIndex ? 20 : 7,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20),
-                          color: index == currentIndex
-                              ? AppColors.primary
-                              : AppColors.textTertiary,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-
-            // Mushroom Name
+            _buildImageHeader(mushroom),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 40),
-              child: Text(
-                mushroom.name,
-                style: const TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                ),
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildTitleSection(mushroom, isPoisonous),
+                  const SizedBox(height: 20),
+                  _buildDescription(mushroom),
+                  const SizedBox(height: 30),
+                  _buildQuickInfoGrid(mushroom),
+                  const SizedBox(height: 30),
+                  if (isPoisonous) _buildWarningSection(mushroom),
+                  _buildMorphologySection(),
+                  const SizedBox(height: 100),
+                ],
               ),
             ),
-            const SizedBox(height: 10),
-
-            // Mushroom Type (Poisonous or Healthy)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 40),
-              child: Text(
-                mushroom.type,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: mushroom.type == 'Poisonous'
-                      ? Colors.red
-                      : Colors.green,
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-
-            // Mushroom Description
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 40),
-              child: Text(
-                mushroom.description,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black54,
-                  letterSpacing: -.3,
-                ),
-              ),
-            ),
-            const SizedBox(height: 30),
-          ],
-        ),
-      ),
-
-      // Bottom sheet with additional mushroom info
-      bottomSheet: Container(
-        height: 300,
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
-        decoration: const BoxDecoration(
-          color: AppColors.secondary,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(40)),
-        ),
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                mushroomInfo(Icons.terrain, "Habitat", mushroom.habitat),
-                mushroomInfo(
-                  Icons.color_lens,
-                  "Spore Color",
-                  mushroom.sporePrintColor,
-                ),
-                mushroomInfo(
-                  Icons.info_outline,
-                  "Edibility",
-                  mushroom.edibility,
-                ),
-              ],
-            ),
-            const SizedBox(height: 30),
-
-            // Symptoms if poisonous
-            if (mushroom.type == "Poisonous") ...[
-              const Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  "Common Symptoms",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    letterSpacing: -0.5,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 8),
-              ...mushroom.symptoms.map(
-                (symptom) => Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 2),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.warning, color: Colors.red, size: 20),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          symptom,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
           ],
         ),
       ),
     );
   }
 
-  // Reusable info block for mushroom properties
-  Column mushroomInfo(IconData icon, String name, String value) => Column(
-    children: [
-      Icon(icon, size: 40, color: Colors.white),
-      const SizedBox(height: 6),
-      Text(
-        name,
-        style: const TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w800,
-          color: Colors.white,
-          letterSpacing: -0.5,
+  Widget _buildImageHeader(Mushroom mushroom) {
+    return Stack(
+      children: [
+        Container(
+          height: 400,
+          decoration: BoxDecoration(
+            color: AppColors.secondary.withOpacity(0.05),
+            borderRadius: const BorderRadius.vertical(
+              bottom: Radius.circular(50),
+            ),
+          ),
+          child: PageView.builder(
+            itemCount: 3, // Assuming 3 gallery images
+            onPageChanged: (value) => setState(() => currentIndex = value),
+            itemBuilder: (context, index) => Hero(
+              tag: mushroom.image,
+              child: Padding(
+                padding: const EdgeInsets.all(40.0),
+                child: Image.asset(mushroom.image, fit: BoxFit.contain),
+              ),
+            ),
+          ),
         ),
+        Positioned(
+          bottom: 30,
+          left: 0,
+          right: 0,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(3, (index) => _buildIndicator(index)),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildIndicator(int index) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      margin: const EdgeInsets.symmetric(horizontal: 4),
+      height: 8,
+      width: currentIndex == index ? 24 : 8,
+      decoration: BoxDecoration(
+        color: currentIndex == index ? AppColors.primary : Colors.grey.shade400,
+        borderRadius: BorderRadius.circular(4),
       ),
-      Text(
-        value,
-        textAlign: TextAlign.center,
-        style: TextStyle(fontSize: 12, color: Colors.grey.shade200),
+    );
+  }
+
+  Widget _buildTitleSection(Mushroom mushroom, bool isPoisonous) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          mushroom.name,
+          style: Theme.of(
+            context,
+          ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: (isPoisonous ? Colors.red : Colors.green).withOpacity(0.1),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Text(
+            mushroom.type.toUpperCase(),
+            style: TextStyle(
+              color: isPoisonous ? Colors.red : Colors.green,
+              fontWeight: FontWeight.bold,
+              fontSize: 12,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDescription(Mushroom mushroom) {
+    return Text(
+      mushroom.description,
+      style: TextStyle(fontSize: 15, color: Colors.grey.shade700, height: 1.5),
+    );
+  }
+
+  Widget _buildQuickInfoGrid(Mushroom mushroom) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.secondary,
+        borderRadius: BorderRadius.circular(30),
       ),
-    ],
-  );
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _infoTile(Icons.terrain, "Habitat", mushroom.habitat),
+          _infoTile(Icons.colorize, "Spore", mushroom.sporePrintColor),
+          _infoTile(Icons.restaurant, "Edibility", mushroom.edibility),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildWarningSection(Mushroom mushroom) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 30),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.red.shade50,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.red.shade100),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Row(
+            children: [
+              Icon(Icons.warning_rounded, color: Colors.red),
+              SizedBox(width: 8),
+              Text(
+                "TOXICITY ALERT",
+                style: TextStyle(
+                  color: Colors.red,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          ...mushroom.symptoms.map(
+            (s) => Padding(
+              padding: const EdgeInsets.only(bottom: 4),
+              child: Text(
+                "• $s",
+                style: const TextStyle(color: Colors.redAccent, fontSize: 13),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMorphologySection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          "Anatomy & Identification",
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 12),
+
+        Text(
+          "Carefully examine the cap shape, gill attachment, and stem base. Proper identification requires observing these key features.",
+          style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+        ),
+      ],
+    );
+  }
+
+  Widget _infoTile(IconData icon, String label, String value) {
+    return Column(
+      children: [
+        Icon(icon, color: Colors.white, size: 28),
+        const SizedBox(height: 8),
+        Text(
+          label,
+          style: const TextStyle(color: Colors.white70, fontSize: 12),
+        ),
+        Text(
+          value,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 13,
+          ),
+        ),
+      ],
+    );
+  }
 }
