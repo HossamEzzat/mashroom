@@ -14,35 +14,22 @@ class OnBoardingScreen extends StatefulWidget {
 class _OnBoardingScreenState extends State<OnBoardingScreen>
     with SingleTickerProviderStateMixin {
   late PageController controller;
-  late AnimationController _animationController;
-  late Animation<Offset> _slideAnimation;
   int currentIndex = 0;
 
   @override
   void initState() {
     super.initState();
     controller = PageController();
-    _animationController = AnimationController(
-      duration: const Duration(milliseconds: 500),
-      vsync: this,
-    );
-
-    _slideAnimation =
-        Tween<Offset>(begin: const Offset(0, 0.5), end: Offset.zero).animate(
-          CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
-        );
-
-    controller.addListener(() {
-      _animationController.forward(from: 0); // Reset animation on page change
-    });
   }
 
   @override
   void dispose() {
     controller.dispose();
-    _animationController.dispose();
     super.dispose();
   }
+
+  // Calculate progress for the circular button
+  double get progress => (currentIndex + 1) / pOnBording.length;
 
   @override
   Widget build(BuildContext context) {
@@ -52,108 +39,154 @@ class _OnBoardingScreenState extends State<OnBoardingScreen>
         backgroundColor: Colors.white,
         elevation: 0,
         actions: [
-          if (currentIndex < pOnBording.length - 1)
-            TextButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const LoginScreen()),
-                );
-              },
-              child: const Text(
-                "Skip",
-                style: TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black54,
-                ),
+          TextButton(
+            onPressed: () => Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => const LoginScreen()),
+            ),
+            child: Text(
+              "Skip",
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Colors.grey.shade600,
               ),
             ),
+          ),
         ],
       ),
       body: Column(
         children: [
           Expanded(
+            flex: 3,
             child: PageView.builder(
               controller: controller,
-              onPageChanged: (value) {
-                setState(() {
-                  currentIndex = value;
-                });
-                _animationController.forward(from: 0); // Restart animation
-              },
+              physics: const BouncingScrollPhysics(),
+              onPageChanged: (value) => setState(() => currentIndex = value),
               itemCount: pOnBording.length,
               itemBuilder: (context, index) {
-                return Column(
-                  children: [
-                    SlideTransition(
-                      position: _slideAnimation, // Animate rising effect
-                      child: Image.asset(
-                        pOnBording[index].image,
-                        height: 300, // Adjust height for better layout
-                        fit: BoxFit.contain,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    SlideTransition(
-                      position: _slideAnimation, // Apply same animation to text
-                      child: Text(
-                        pOnBording[index].title,
-                        style: const TextStyle(
-                          fontSize: 26,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 40),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Image with subtle scaling
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
+                        height: currentIndex == index ? 320 : 280,
+                        child: Image.asset(
+                          pOnBording[index].image,
+                          fit: BoxFit.contain,
                         ),
-                        textAlign: TextAlign.center,
                       ),
-                    ),
-                    const SizedBox(height: 30),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: List.generate(
-                        pOnBording.length,
-                        (index) => AnimatedContainer(
-                          duration: const Duration(milliseconds: 300),
-                          margin: const EdgeInsets.only(right: 4),
-                          width: index == currentIndex ? 18 : 7,
-                          height: 7,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            color: index == currentIndex
-                                ? Color(0xffb65ec4)
-                                : Colors.grey.shade400,
+                      const SizedBox(height: 40),
+                      Text(
+                        pOnBording[index].title,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF2D2D2D),
+                          letterSpacing: -0.5,
+                        ),
+                      ),
+                      const SizedBox(height: 15),
+                      Text(
+                        "Discover the best features we have to offer for your daily productivity.", // Replace with pOnBording[index].description if available
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey.shade500,
+                          height: 1.5,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
+
+          // Bottom Section: Progress Dots and Circular Button
+          Expanded(
+            flex: 1,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(
+                    pOnBording.length,
+                    (index) => buildDot(index),
+                  ),
+                ),
+                const SizedBox(height: 40),
+                GestureDetector(
+                  onTap: () {
+                    if (currentIndex == pOnBording.length - 1) {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const LoginSignupOnboard(),
+                        ),
+                      );
+                    } else {
+                      controller.nextPage(
+                        duration: const Duration(milliseconds: 500),
+                        curve: Curves.easeOutQuart,
+                      );
+                    }
+                  },
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      SizedBox(
+                        width: 80,
+                        height: 80,
+                        child: CircularProgressIndicator(
+                          value: progress,
+                          strokeWidth: 4,
+                          backgroundColor: Colors.grey.shade200,
+                          valueColor: const AlwaysStoppedAnimation<Color>(
+                            Color(0xffb65ec4),
                           ),
                         ),
                       ),
-                    ),
-                  ],
-                );
-              },
+                      Container(
+                        width: 60,
+                        height: 60,
+                        decoration: const BoxDecoration(
+                          color: Color(0xffb65ec4),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.arrow_forward_ios,
+                          color: Colors.white,
+                          size: 24,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 30),
-          InkWell(
-            onTap: () async {
-              if (currentIndex == (pOnBording.length - 1)) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const LoginSignupOnboard()),
-                );
-              } else {
-                await controller.nextPage(
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeInOut,
-                );
-              }
-            },
-            child: const CircleAvatar(
-              backgroundColor: Color(0xffb65ec4),
-              radius: 50,
-              child: Icon(Icons.arrow_forward, color: Colors.white, size: 40),
-            ),
-          ),
-          const SizedBox(height: 30),
         ],
+      ),
+    );
+  }
+
+  Widget buildDot(int index) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      margin: const EdgeInsets.only(right: 8),
+      height: 8,
+      width: currentIndex == index ? 24 : 8,
+      decoration: BoxDecoration(
+        color: currentIndex == index
+            ? const Color(0xffb65ec4)
+            : Colors.grey.shade300,
+        borderRadius: BorderRadius.circular(4),
       ),
     );
   }
