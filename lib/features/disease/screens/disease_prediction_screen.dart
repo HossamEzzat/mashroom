@@ -5,10 +5,11 @@ import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../core/theme/app_colors.dart';
-import '../../../core/widgets/loading_indicator.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../models/prediction_result.dart';
 import '../repositories/disease_repository.dart';
 import '../widgets/prediction_result_card.dart';
+import '../widgets/scanning_overlay.dart';
 import 'mushroom_info_screen.dart';
 
 class DiseasePredictionScreen extends StatefulWidget {
@@ -101,111 +102,133 @@ class _DiseasePredictionScreenState extends State<DiseasePredictionScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(title: const Text('AI Classifier'), centerTitle: true),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          children: [
-            _buildImagePickerArea(),
-            const SizedBox(height: 24),
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              children: [
+                _buildImagePickerArea(),
+                const SizedBox(height: 24),
 
-            if (_isClassifying)
-              const LoadingIndicator(message: "AI is analyzing the specimen...")
-            else if (_result != null)
-              PredictionResultCard(
-                result: _result!,
-                imagePath: _image!.path,
-                onMoreInfo: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => MushroomInfoScreen(
-                      prediction: _result!.prediction,
+                if (!_isClassifying && _result != null)
+                  TweenAnimationBuilder<Offset>(
+                    tween: Tween(begin: const Offset(0, 50), end: Offset.zero),
+                    duration: AppTheme.animationSlow,
+                    curve: AppTheme.springCurve,
+                    builder: (context, offset, child) {
+                      return Transform.translate(offset: offset, child: child);
+                    },
+                    child: PredictionResultCard(
+                      result: _result!,
                       imagePath: _image!.path,
+                      onMoreInfo: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => MushroomInfoScreen(
+                            prediction: _result!.prediction,
+                            imagePath: _image!.path,
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-              )
-            else
-              _buildInstructionCard(),
-          ],
-        ),
+                  )
+                else if (!_isClassifying)
+                  _buildInstructionCard(),
+              ],
+            ),
+          ),
+
+          // Scanning overlay
+          ScanningOverlay(isScanning: _isClassifying),
+        ],
       ),
     );
   }
 
   Widget _buildImagePickerArea() {
-    return GestureDetector(
-      onTap: _showImageSourceSheet,
-      child: Container(
-        height: 280,
-        width: double.infinity,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(
-            color: _image == null
-                ? AppColors.primary.withOpacity(0.3)
-                : Colors.transparent,
-            width: 2,
-            style: BorderStyle.solid,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0.0, end: 1.0),
+      duration: const Duration(milliseconds: 1500),
+      builder: (context, value, child) {
+        return GestureDetector(
+          onTap: _showImageSourceSheet,
+          child: AnimatedContainer(
+            duration: AppTheme.animationMedium,
+            height: 280,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(
+                color: _image == null
+                    ? AppColors.primary.withOpacity(0.3 + value * 0.2)
+                    : Colors.transparent,
+                width: _image == null ? 2 + value : 2,
+                style: BorderStyle.solid,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: _image == null
+                      ? AppColors.primary.withOpacity(0.1 * value)
+                      : Colors.black.withOpacity(0.05),
+                  blurRadius: 20,
+                  offset: const Offset(0, 10),
+                ),
+              ],
             ),
-          ],
-        ),
-        child: Stack(
-          children: [
-            if (_image != null)
-              Positioned.fill(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(22),
-                  child: Image.file(_image!, fit: BoxFit.cover),
-                ),
-              ),
-            if (_image != null)
-              Positioned(
-                right: 12,
-                top: 12,
-                child: CircleAvatar(
-                  backgroundColor: Colors.black54,
-                  child: IconButton(
-                    icon: const Icon(Icons.refresh, color: Colors.white),
-                    onPressed: _showImageSourceSheet,
-                  ),
-                ),
-              ),
-            if (_image == null)
-              Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.cloud_upload_outlined,
-                      size: 64,
-                      color: AppColors.primary,
+            child: Stack(
+              children: [
+                if (_image != null)
+                  Positioned.fill(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(22),
+                      child: Image.file(_image!, fit: BoxFit.cover),
                     ),
-                    const SizedBox(height: 16),
-                    const Text(
-                      'Upload Mushroom Photo',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                  ),
+                if (_image != null)
+                  Positioned(
+                    right: 12,
+                    top: 12,
+                    child: CircleAvatar(
+                      backgroundColor: Colors.black54,
+                      child: IconButton(
+                        icon: const Icon(Icons.refresh, color: Colors.white),
+                        onPressed: _showImageSourceSheet,
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Camera or Gallery',
-                      style: TextStyle(color: Colors.grey.shade500),
+                  ),
+                if (_image == null)
+                  Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.cloud_upload_outlined,
+                          size: 64,
+                          color: AppColors.primary,
+                        ),
+                        const SizedBox(height: 16),
+                        const Text(
+                          'Upload Mushroom Photo',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Camera or Gallery',
+                          style: TextStyle(color: Colors.grey.shade500),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-              ),
-          ],
-        ),
-      ),
+                  ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 

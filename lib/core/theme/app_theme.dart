@@ -23,6 +23,17 @@ class AppTheme {
   static const double elevationM = 4.0;
   static const double elevationL = 8.0;
 
+  // Animation durations
+  static const Duration animationFast = Duration(milliseconds: 200);
+  static const Duration animationMedium = Duration(milliseconds: 300);
+  static const Duration animationSlow = Duration(milliseconds: 500);
+  static const Duration animationVerySlow = Duration(milliseconds: 800);
+
+  // Animation curves
+  static const Curve defaultCurve = Curves.easeInOutCubic;
+  static const Curve bounceCurve = Curves.elasticOut;
+  static const Curve springCurve = Curves.easeOutBack;
+
   /// Light theme configuration
   static ThemeData get lightTheme {
     return ThemeData(
@@ -204,7 +215,8 @@ class AppTheme {
     return BoxDecoration(
       color: color ?? AppColors.backgroundLight,
       borderRadius: BorderRadius.circular(radius ?? radiusM),
-      boxShadow: shadows ??
+      boxShadow:
+          shadows ??
           [
             BoxShadow(
               color: AppColors.shadow,
@@ -237,6 +249,75 @@ class AppTheme {
           offset: const Offset(0, 2),
         ),
       ],
+    );
+  }
+
+  /// Glassmorphism decoration
+  static BoxDecoration glassmorphismDecoration({
+    double radius = radiusM,
+    double blur = 10.0,
+  }) {
+    return BoxDecoration(
+      color: AppColors.glassBackground,
+      borderRadius: BorderRadius.circular(radius),
+      border: Border.all(color: AppColors.glassBorder, width: 1.5),
+      boxShadow: [
+        BoxShadow(
+          color: AppColors.warmShadow,
+          blurRadius: blur,
+          offset: const Offset(0, 4),
+        ),
+      ],
+    );
+  }
+
+  /// Shimmer decoration for loading states
+  static BoxDecoration shimmerDecoration({double radius = radiusM}) {
+    return BoxDecoration(
+      gradient: AppColors.shimmerGradient,
+      borderRadius: BorderRadius.circular(radius),
+    );
+  }
+
+  /// Enhanced card decoration with depth
+  static BoxDecoration enhancedCardDecoration({
+    Color? color,
+    double? radius,
+    Gradient? gradient,
+    bool elevated = true,
+  }) {
+    return BoxDecoration(
+      color: gradient == null ? (color ?? AppColors.backgroundLight) : null,
+      gradient: gradient,
+      borderRadius: BorderRadius.circular(radius ?? radiusL),
+      border: Border.all(color: Colors.grey.withOpacity(0.1), width: 1),
+      boxShadow: elevated
+          ? [
+              BoxShadow(
+                color: AppColors.warmShadow,
+                blurRadius: 15,
+                spreadRadius: 2,
+                offset: const Offset(0, 8),
+              ),
+              BoxShadow(
+                color: AppColors.glassHighlight,
+                blurRadius: 5,
+                offset: const Offset(0, -2),
+              ),
+            ]
+          : null,
+    );
+  }
+
+  /// Pulsing decoration for warnings
+  static BoxDecoration pulsingDecoration({
+    required Color color,
+    double radius = radiusM,
+  }) {
+    return BoxDecoration(
+      color: color.withOpacity(0.05),
+      borderRadius: BorderRadius.circular(radius),
+      border: Border.all(color: color.withOpacity(0.3), width: 2),
     );
   }
 }

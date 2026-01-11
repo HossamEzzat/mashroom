@@ -41,10 +41,11 @@ class MushroomInfoScreenState extends State<MushroomInfoScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (isLoading)
+    if (isLoading) {
       return const Scaffold(
         body: LoadingIndicator(message: "Fetching detailed specs..."),
       );
+    }
 
     final bool isSafe =
         mushroomData.healthStatus.toLowerCase().contains("safe") ||

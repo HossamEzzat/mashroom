@@ -57,4 +57,47 @@ class AppColors {
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
+
+  // Nature-inspired gradients
+  static const LinearGradient forestGradient = LinearGradient(
+    colors: [Color(0xFF2D5016), Color(0xFF4A7C59)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  static const LinearGradient mushroomGradient = LinearGradient(
+    colors: [Color(0xFF8B4513), Color(0xFFD2691E)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  static const LinearGradient toxicGradient = LinearGradient(
+    colors: [Color(0xFFFF5252), Color(0xFFFF9800)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  static const LinearGradient safeGradient = LinearGradient(
+    colors: [Color(0xFF66BB6A), Color(0xFF81C784)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  // Shimmer gradient for loading states
+  static const LinearGradient shimmerGradient = LinearGradient(
+    colors: [Color(0xFFE0E0E0), Color(0xFFF5F5F5), Color(0xFFE0E0E0)],
+    stops: [0.0, 0.5, 1.0],
+    begin: Alignment(-1.0, -0.3),
+    end: Alignment(1.0, 0.3),
+  );
+
+  // Glassmorphism colors
+  static Color glassBackground = Colors.white.withOpacity(0.1);
+  static Color glassBorder = Colors.white.withOpacity(0.2);
+  static Color glassHighlight = Colors.white.withOpacity(0.05);
+
+  // Enhanced shadows with warmer tones
+  static Color warmShadow = const Color(0xFF000000).withOpacity(0.08);
+  static Color warmShadowMedium = const Color(0xFF000000).withOpacity(0.15);
+  static Color warmShadowStrong = const Color(0xFF000000).withOpacity(0.25);
 }

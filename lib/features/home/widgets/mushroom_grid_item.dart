@@ -4,10 +4,48 @@ import 'package:mashroom/models/plant_model.dart';
 
 import '../screens/plant_detail_screen.dart';
 
-class MushroomGridView extends StatelessWidget {
+class MushroomGridView extends StatefulWidget {
   final List<Mushroom> mushrooms;
 
   const MushroomGridView({super.key, required this.mushrooms});
+
+  @override
+  State<MushroomGridView> createState() => _MushroomGridViewState();
+}
+
+class _MushroomGridViewState extends State<MushroomGridView>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late List<Animation<double>> _itemAnimations;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    );
+
+    // Create staggered animations for each item
+    _itemAnimations = List.generate(widget.mushrooms.length, (index) {
+      final start = (index * 0.1).clamp(0.0, 0.6);
+      final end = (start + 0.4).clamp(0.0, 1.0);
+      return Tween<double>(begin: 0.0, end: 1.0).animate(
+        CurvedAnimation(
+          parent: _controller,
+          curve: Interval(start, end, curve: Curves.easeOutCubic),
+        ),
+      );
+    });
+
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +65,7 @@ class MushroomGridView extends StatelessWidget {
               ),
               children: [
                 TextSpan(
-                  text: "${mushrooms.length} Results",
+                  text: "${widget.mushrooms.length} Results",
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     color: Colors.black,
@@ -47,9 +85,22 @@ class MushroomGridView extends StatelessWidget {
             crossAxisSpacing: 20,
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            itemCount: mushrooms.length,
+            itemCount: widget.mushrooms.length,
             itemBuilder: (context, index) {
-              return MushroomGridItem(mushroom: mushrooms[index]);
+              return AnimatedBuilder(
+                animation: _itemAnimations[index],
+                builder: (context, child) {
+                  return Transform.translate(
+                    offset: Offset(0, 30 * (1 - _itemAnimations[index].value)),
+                    child: Opacity(
+                      opacity: _itemAnimations[index].value,
+                      child: MushroomGridItem(
+                        mushroom: widget.mushrooms[index],
+                      ),
+                    ),
+                  );
+                },
+              );
             },
           ),
         ),

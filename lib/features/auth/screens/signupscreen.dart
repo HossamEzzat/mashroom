@@ -119,8 +119,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   _emailController,
                   keyboardType: TextInputType.emailAddress,
                   validator: (value) {
-                    if (value == null || !value.contains('@'))
+                    if (value == null || !value.contains('@')) {
                       return 'Enter a valid email';
+                    }
                     return null;
                   },
                 ),
@@ -152,8 +153,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   _confirmPasswordController,
                   obscureText: _obscurePassword,
                   validator: (value) {
-                    if (value != _passwordController.text)
+                    if (value != _passwordController.text) {
                       return 'Passwords do not match';
+                    }
                     return null;
                   },
                 ),

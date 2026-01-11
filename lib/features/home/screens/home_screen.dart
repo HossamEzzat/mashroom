@@ -1,11 +1,93 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/feature_card.dart';
+import '../../../models/plant_model.dart';
 import '../../disease/screens/disease_prediction_screen.dart';
 import '../widgets/mushroom_grid_item.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+  final FocusNode _searchFocusNode = FocusNode();
+  bool _isSearchFocused = false;
+  int _selectedCategory = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: AppTheme.animationSlow,
+    );
+    _animationController.forward();
+
+    _searchFocusNode.addListener(() {
+      setState(() {
+        _isSearchFocused = _searchFocusNode.hasFocus;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    _searchFocusNode.dispose();
+    super.dispose();
+  }
+
+  // Sample mushroom data
+  static final List<Mushroom> _sampleMushrooms = [
+    Mushroom(
+      name: 'Amanita muscaria',
+      image: 'assets/mushrooms/amanita.png',
+      type: 'Poisonous',
+      habitat: 'Forests, near birch and pine trees',
+      edibility: 'Toxic',
+      description:
+          'Iconic red cap with white spots. Highly toxic and hallucinogenic.',
+      symptoms: ['Nausea', 'Hallucinations', 'Confusion'],
+      sporePrintColor: 'White',
+    ),
+    Mushroom(
+      name: 'Boletus edulis',
+      image: 'assets/mushrooms/porcini.png',
+      type: 'Edible',
+      habitat: 'Deciduous and coniferous forests',
+      edibility: 'Edible',
+      description: 'Prized edible mushroom, known as porcini or king bolete.',
+      symptoms: [],
+      sporePrintColor: 'Olive-brown',
+    ),
+    Mushroom(
+      name: 'Chanterelle',
+      image: 'assets/mushrooms/chanterelle.png',
+      type: 'Edible',
+      habitat: 'Hardwood and coniferous forests',
+      edibility: 'Edible',
+      description: 'Golden-yellow funnel-shaped mushroom with a fruity aroma.',
+      symptoms: [],
+      sporePrintColor: 'Pale yellow',
+    ),
+    Mushroom(
+      name: 'Death Cap',
+      image: 'assets/mushrooms/death_cap.png',
+      type: 'Poisonous',
+      habitat: 'Near oak and chestnut trees',
+      edibility: 'Deadly',
+      description:
+          'One of the most poisonous mushrooms. Responsible for most fatal poisonings.',
+      symptoms: ['Severe abdominal pain', 'Vomiting', 'Liver failure'],
+      sporePrintColor: 'White',
+    ),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -46,8 +128,7 @@ class HomeScreen extends StatelessWidget {
           SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             sliver: SliverToBoxAdapter(
-
-              child: MushroomGridView(mushrooms: ),
+              child: MushroomGridView(mushrooms: _sampleMushrooms),
             ),
           ),
 
@@ -118,27 +199,42 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _buildSearchBar(ThemeData theme) {
-    return Container(
+    return AnimatedContainer(
+      duration: AppTheme.animationMedium,
+      curve: AppTheme.defaultCurve,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 10,
+            color: _isSearchFocused
+                ? AppColors.primary.withOpacity(0.15)
+                : Colors.black.withOpacity(0.04),
+            blurRadius: _isSearchFocused ? 15 : 10,
             offset: const Offset(0, 4),
           ),
         ],
+        border: Border.all(
+          color: _isSearchFocused
+              ? AppColors.primary.withOpacity(0.5)
+              : Colors.transparent,
+          width: 2,
+        ),
       ),
       child: TextField(
+        focusNode: _searchFocusNode,
         decoration: InputDecoration(
           hintText: "Search species, habitats...",
           hintStyle: theme.textTheme.bodyMedium?.copyWith(
             color: Colors.grey[400],
           ),
           border: InputBorder.none,
-          icon: const Icon(Icons.search, color: AppColors.primary),
+          icon: AnimatedRotation(
+            turns: _isSearchFocused ? 0.5 : 0,
+            duration: AppTheme.animationMedium,
+            child: const Icon(Icons.search, color: AppColors.primary),
+          ),
         ),
       ),
     );
@@ -176,52 +272,74 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _buildPremiumBanner(ThemeData theme) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [const Color(0xFFFEDC2A), Colors.orange[400]!],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.orange.withOpacity(0.3),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.stars, color: Colors.white, size: 40),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  "Get Pro Access",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                    color: Colors.white,
-                  ),
-                ),
-                Text(
-                  "Expert ID & Toxic Alerts",
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.9),
-                    fontSize: 13,
-                  ),
-                ),
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0.0, end: 1.0),
+      duration: const Duration(seconds: 2),
+      curve: Curves.easeInOut,
+      builder: (context, value, child) {
+        return Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Color.lerp(
+                  const Color(0xFFFEDC2A),
+                  Colors.orange[300]!,
+                  value,
+                )!,
+                Color.lerp(
+                  Colors.orange[400]!,
+                  const Color(0xFFFEDC2A),
+                  value,
+                )!,
               ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             ),
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.orange.withOpacity(0.3 + value * 0.1),
+                blurRadius: 15 + value * 5,
+                offset: const Offset(0, 8),
+              ),
+            ],
           ),
-          const Icon(Icons.arrow_forward_ios, color: Colors.white, size: 16),
-        ],
-      ),
+          child: Row(
+            children: [
+              const Icon(Icons.stars, color: Colors.white, size: 40),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "Get Pro Access",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        color: Colors.white,
+                      ),
+                    ),
+                    Text(
+                      "Expert ID & Toxic Alerts",
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.9),
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(
+                Icons.arrow_forward_ios,
+                color: Colors.white,
+                size: 16,
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -233,23 +351,42 @@ class HomeScreen extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         itemCount: categories.length,
         itemBuilder: (context, index) {
-          final isSelected = index == 0;
-          return Container(
-            margin: const EdgeInsets.only(right: 12),
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: isSelected ? AppColors.primary : Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: isSelected ? Colors.transparent : Colors.grey[200]!,
+          final isSelected = _selectedCategory == index;
+          return GestureDetector(
+            onTap: () {
+              setState(() {
+                _selectedCategory = index;
+              });
+            },
+            child: AnimatedContainer(
+              duration: AppTheme.animationMedium,
+              curve: AppTheme.springCurve,
+              margin: const EdgeInsets.only(right: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              alignment: Alignment.center,
+              transform: Matrix4.identity()..scale(isSelected ? 1.05 : 1.0),
+              decoration: BoxDecoration(
+                color: isSelected ? AppColors.primary : Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: isSelected ? Colors.transparent : Colors.grey[200]!,
+                ),
+                boxShadow: isSelected
+                    ? [
+                        BoxShadow(
+                          color: AppColors.primary.withOpacity(0.3),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        ),
+                      ]
+                    : null,
               ),
-            ),
-            child: Text(
-              categories[index],
-              style: TextStyle(
-                color: isSelected ? Colors.white : Colors.black87,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              child: Text(
+                categories[index],
+                style: TextStyle(
+                  color: isSelected ? Colors.white : Colors.black87,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                ),
               ),
             ),
           );
