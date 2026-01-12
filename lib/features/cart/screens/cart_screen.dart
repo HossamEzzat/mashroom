@@ -72,7 +72,7 @@ class _ComparisonCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
+            color: Colors.black.withValues(alpha: 0.06),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -101,7 +101,7 @@ class _ComparisonCard extends StatelessWidget {
                 Container(
                   height: 120,
                   width: 1,
-                  color: Colors.grey.withOpacity(0.2),
+                  color: Colors.grey.withValues(alpha: 0.2),
                   margin: const EdgeInsets.symmetric(horizontal: 12),
                 ),
                 Expanded(
@@ -119,7 +119,7 @@ class _ComparisonCard extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.05),
+              color: AppColors.primary.withValues(alpha: 0.05),
               borderRadius: const BorderRadius.only(
                 bottomLeft: Radius.circular(24),
                 bottomRight: Radius.circular(24),
@@ -189,7 +189,7 @@ class _SpecimenColumn extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
           decoration: BoxDecoration(
-            color: statusColor.withOpacity(0.1),
+            color: statusColor.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(20),
           ),
           child: Text(
@@ -207,7 +207,10 @@ class _SpecimenColumn extends StatelessWidget {
         Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: statusColor.withOpacity(0.3), width: 2),
+            border: Border.all(
+              color: statusColor.withValues(alpha: 0.3),
+              width: 2,
+            ),
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(14),

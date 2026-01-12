@@ -19,8 +19,24 @@ class _HomeScreenState extends State<HomeScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   final FocusNode _searchFocusNode = FocusNode();
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
   bool _isSearchFocused = false;
-  int _selectedCategory = 0;
+
+  List<Mushroom> get _filteredMushrooms {
+    if (_searchQuery.isEmpty) {
+      return _sampleMushrooms;
+    }
+    final query = _searchQuery.toLowerCase();
+    return _sampleMushrooms.where((mushroom) {
+      final name = mushroom.name.toLowerCase();
+      final description = mushroom.description.toLowerCase();
+      final type = mushroom.type.toLowerCase();
+      return name.contains(query) ||
+          description.contains(query) ||
+          type.contains(query);
+    }).toList();
+  }
 
   @override
   void initState() {
@@ -30,6 +46,12 @@ class _HomeScreenState extends State<HomeScreen>
       duration: AppTheme.animationSlow,
     );
     _animationController.forward();
+
+    _searchController.addListener(() {
+      setState(() {
+        _searchQuery = _searchController.text;
+      });
+    });
 
     _searchFocusNode.addListener(() {
       setState(() {
@@ -42,6 +64,7 @@ class _HomeScreenState extends State<HomeScreen>
   void dispose() {
     _animationController.dispose();
     _searchFocusNode.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -126,7 +149,7 @@ class _HomeScreenState extends State<HomeScreen>
           SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             sliver: SliverToBoxAdapter(
-              child: MushroomGridView(mushrooms: _sampleMushrooms),
+              child: MushroomGridView(mushrooms: _filteredMushrooms),
             ),
           ),
 
@@ -216,12 +239,12 @@ class _HomeScreenState extends State<HomeScreen>
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             border: Border.all(
-              color: AppColors.primary.withOpacity(0.2),
+              color: AppColors.primary.withValues(alpha: 0.2),
               width: 2,
             ),
             boxShadow: [
               BoxShadow(
-                color: AppColors.primary.withOpacity(0.1),
+                color: AppColors.primary.withValues(alpha: 0.1),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -262,6 +285,7 @@ class _HomeScreenState extends State<HomeScreen>
         ),
       ),
       child: TextField(
+        controller: _searchController,
         focusNode: _searchFocusNode,
         decoration: InputDecoration(
           hintText: "Search species, habitats...",
@@ -284,6 +308,15 @@ class _HomeScreenState extends State<HomeScreen>
               size: 24,
             ),
           ),
+          suffixIcon: _searchController.text.isNotEmpty
+              ? IconButton(
+                  icon: const Icon(Icons.close, color: Colors.grey),
+                  onPressed: () {
+                    _searchController.clear();
+                    // State update listener will handle clearing query
+                  },
+                )
+              : null,
         ),
       ),
     );

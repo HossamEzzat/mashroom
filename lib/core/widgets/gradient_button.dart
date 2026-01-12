@@ -118,8 +118,8 @@ class _GradientButtonState extends State<GradientButton>
                   color: Colors.transparent,
                   child: InkWell(
                     borderRadius: BorderRadius.circular(widget.borderRadius),
-                    splashColor: Colors.white.withOpacity(0.2),
-                    highlightColor: Colors.white.withOpacity(0.1),
+                    splashColor: Colors.white.withValues(alpha: 0.2),
+                    highlightColor: Colors.white.withValues(alpha: 0.1),
                     child: Center(
                       child: widget.isLoading
                           ? const SizedBox(

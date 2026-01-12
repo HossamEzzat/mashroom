@@ -27,7 +27,7 @@ class PredictionResultCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppTheme.radiusL),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withOpacity(0.3),
+            color: AppColors.primary.withValues(alpha: 0.3),
             blurRadius: 15,
             offset: const Offset(0, 8),
           ),
@@ -125,7 +125,7 @@ class PredictionResultCard extends StatelessWidget {
           child: LinearProgressIndicator(
             value: confidence,
             minHeight: 8,
-            backgroundColor: Colors.white.withOpacity(0.2),
+            backgroundColor: Colors.white.withValues(alpha: 0.2),
             valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
           ),
         ),
@@ -176,9 +176,9 @@ class PredictionResultCard extends StatelessWidget {
                   child: LinearProgressIndicator(
                     value: entry.value,
                     minHeight: 4,
-                    backgroundColor: Colors.white.withOpacity(0.1),
+                    backgroundColor: Colors.white.withValues(alpha: 0.1),
                     valueColor: AlwaysStoppedAnimation<Color>(
-                      Colors.white.withOpacity(0.5),
+                      Colors.white.withValues(alpha: 0.5),
                     ),
                   ),
                 ),

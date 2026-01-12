@@ -92,12 +92,16 @@ class AppColors {
   );
 
   // Glassmorphism colors
-  static Color glassBackground = Colors.white.withOpacity(0.1);
-  static Color glassBorder = Colors.white.withOpacity(0.2);
-  static Color glassHighlight = Colors.white.withOpacity(0.05);
+  static Color glassBackground = Colors.white.withValues(alpha: 0.1);
+  static Color glassBorder = Colors.white.withValues(alpha: 0.2);
+  static Color glassHighlight = Colors.white.withValues(alpha: 0.05);
 
   // Enhanced shadows with warmer tones
-  static Color warmShadow = const Color(0xFF000000).withOpacity(0.08);
-  static Color warmShadowMedium = const Color(0xFF000000).withOpacity(0.15);
-  static Color warmShadowStrong = const Color(0xFF000000).withOpacity(0.25);
+  static Color warmShadow = const Color(0xFF000000).withValues(alpha: 0.08);
+  static Color warmShadowMedium = const Color(
+    0xFF000000,
+  ).withValues(alpha: 0.15);
+  static Color warmShadowStrong = const Color(
+    0xFF000000,
+  ).withValues(alpha: 0.25);
 }

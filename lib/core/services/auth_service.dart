@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -44,7 +45,7 @@ class AuthService {
         'createdAt': FieldValue.serverTimestamp(),
       });
     } catch (e) {
-      print("Error saving user to Firestore: $e");
+      debugPrint("Error saving user to Firestore: $e");
       // Optional: don't throw, so signup still succeeds even if firestore fails temporarily?
       // Or throw to ensure consistent state.
       // For now, let's allow basic auth to succeed but log error.

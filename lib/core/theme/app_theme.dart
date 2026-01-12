@@ -290,7 +290,7 @@ class AppTheme {
       color: gradient == null ? (color ?? AppColors.backgroundLight) : null,
       gradient: gradient,
       borderRadius: BorderRadius.circular(radius ?? radiusL),
-      border: Border.all(color: Colors.grey.withOpacity(0.1), width: 1),
+      border: Border.all(color: Colors.grey.withValues(alpha: 0.1), width: 1),
       boxShadow: elevated
           ? [
               BoxShadow(
@@ -315,9 +315,9 @@ class AppTheme {
     double radius = radiusM,
   }) {
     return BoxDecoration(
-      color: color.withOpacity(0.05),
+      color: color.withValues(alpha: 0.05),
       borderRadius: BorderRadius.circular(radius),
-      border: Border.all(color: color.withOpacity(0.3), width: 2),
+      border: Border.all(color: color.withValues(alpha: 0.3), width: 2),
     );
   }
 }

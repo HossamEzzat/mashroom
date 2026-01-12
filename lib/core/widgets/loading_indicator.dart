@@ -102,7 +102,9 @@ class LoadingOverlay extends StatelessWidget {
             child: ClipRect(
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
-                child: Container(color: AppColors.overlay.withOpacity(0.5)),
+                child: Container(
+                  color: AppColors.overlay.withValues(alpha: 0.5),
+                ),
               ),
             ),
           )

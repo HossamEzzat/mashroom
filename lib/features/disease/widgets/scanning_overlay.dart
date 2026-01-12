@@ -53,7 +53,7 @@ class _ScanningOverlayState extends State<ScanningOverlay>
     if (!widget.isScanning) return const SizedBox.shrink();
 
     return Container(
-      color: Colors.black.withOpacity(0.7),
+      color: Colors.black.withValues(alpha: 0.7),
       child: Stack(
         children: [
           // Scanning circle animation
@@ -82,7 +82,7 @@ class _ScanningOverlayState extends State<ScanningOverlay>
                   child: Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withOpacity(0.2),
+                      color: AppColors.primary.withValues(alpha: 0.2),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
@@ -125,7 +125,7 @@ class _ScanningOverlayState extends State<ScanningOverlay>
                 SizedBox(
                   width: 200,
                   child: LinearProgressIndicator(
-                    backgroundColor: Colors.white.withOpacity(0.2),
+                    backgroundColor: Colors.white.withValues(alpha: 0.2),
                     valueColor: AlwaysStoppedAnimation<Color>(
                       AppColors.primary,
                     ),
@@ -170,7 +170,7 @@ class ScanningCirclePainter extends CustomPainter {
 
     // Draw outer glow circle
     final glowPaint = Paint()
-      ..color = color.withOpacity(0.3)
+      ..color = color.withValues(alpha: 0.3)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2;
 

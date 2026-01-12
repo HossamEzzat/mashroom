@@ -38,6 +38,7 @@ class _DiseasePredictionScreenState extends State<DiseasePredictionScreen> {
         _image = File(pickedFile.path);
         _result = null;
       });
+      if (!mounted) return;
       Navigator.pop(context); // Close bottom sheet
       _classifyImage(); // Auto-start classification
     }
@@ -162,7 +163,7 @@ class _DiseasePredictionScreenState extends State<DiseasePredictionScreen> {
               borderRadius: BorderRadius.circular(24),
               border: Border.all(
                 color: _image == null
-                    ? AppColors.primary.withOpacity(0.3 + value * 0.2)
+                    ? AppColors.primary.withValues(alpha: 0.3 + value * 0.2)
                     : Colors.transparent,
                 width: _image == null ? 2 + value : 2,
                 style: BorderStyle.solid,
@@ -170,8 +171,8 @@ class _DiseasePredictionScreenState extends State<DiseasePredictionScreen> {
               boxShadow: [
                 BoxShadow(
                   color: _image == null
-                      ? AppColors.primary.withOpacity(0.1 * value)
-                      : Colors.black.withOpacity(0.05),
+                      ? AppColors.primary.withValues(alpha: 0.1 * value)
+                      : Colors.black.withValues(alpha: 0.05),
                   blurRadius: 20,
                   offset: const Offset(0, 10),
                 ),
@@ -236,7 +237,7 @@ class _DiseasePredictionScreenState extends State<DiseasePredictionScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.primary.withOpacity(0.05),
+        color: AppColors.primary.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
