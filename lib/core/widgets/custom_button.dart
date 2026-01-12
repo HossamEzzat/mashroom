@@ -155,8 +155,6 @@ class _CustomButtonState extends State<CustomButton>
   }
 
   ButtonStyle _getButtonStyle(BuildContext context) {
-    final theme = Theme.of(context);
-
     return ElevatedButton.styleFrom(
       backgroundColor: _getBgColor(),
       foregroundColor: _getFgColor(),

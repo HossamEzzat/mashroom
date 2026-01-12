@@ -131,13 +131,13 @@ class MushroomGridItem extends StatelessWidget {
         duration: const Duration(milliseconds: 300),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: Colors.grey.withOpacity(0.05)),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.grey.withValues(alpha: 0.1)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.03),
-              blurRadius: 15,
-              offset: const Offset(0, 8),
+              color: Colors.black.withValues(alpha: 0.06),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
             ),
           ],
         ),
@@ -148,38 +148,84 @@ class MushroomGridItem extends StatelessWidget {
             Stack(
               children: [
                 Container(
-                  height: 150,
+                  height: 160,
                   width: double.infinity,
                   decoration: BoxDecoration(
-                    color: accentColor.withOpacity(0.05),
+                    color: accentColor.withValues(alpha: 0.05),
                     borderRadius: const BorderRadius.vertical(
-                      top: Radius.circular(24),
+                      top: Radius.circular(20),
+                      bottom: Radius.circular(0),
                     ),
                   ),
                   child: Hero(
                     tag: mushroom.image,
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Image.asset(mushroom.image, fit: BoxFit.contain),
+                    child: ClipRRect(
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(20),
+                      ),
+                      child: Image.asset(
+                        mushroom.image,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Center(
+                            child: Icon(
+                              Icons.image_not_supported,
+                              color: Colors.grey[400],
+                              size: 40,
+                            ),
+                          );
+                        },
+                      ),
                     ),
                   ),
                 ),
                 Positioned(
-                  top: 12,
-                  right: 12,
-                  child: Icon(
-                    isPoisonous
-                        ? Icons.warning_amber_rounded
-                        : Icons.check_circle_outline,
-                    color: accentColor.withOpacity(0.5),
-                    size: 20,
+                  top: 10,
+                  right: 10,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.9),
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.05),
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          isPoisonous
+                              ? Icons.warning_amber_rounded
+                              : Icons.check_circle_outline,
+                          color: accentColor,
+                          size: 14,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          mushroom.type,
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            color: accentColor,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
             ),
 
             Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(12.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -188,14 +234,13 @@ class MushroomGridItem extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
-                      fontSize: 16,
+                      fontSize: 15,
                       fontWeight: FontWeight.bold,
+                      letterSpacing: -0.5,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 6),
                   _buildHabitatTag(mushroom.habitat),
-                  const SizedBox(height: 12),
-                  _buildStatusFooter(mushroom.type, accentColor),
                 ],
               ),
             ),
@@ -208,33 +253,16 @@ class MushroomGridItem extends StatelessWidget {
   Widget _buildHabitatTag(String habitat) {
     return Row(
       children: [
-        Icon(Icons.terrain, size: 12, color: Colors.grey[400]),
+        Icon(Icons.terrain_rounded, size: 14, color: Colors.grey[400]),
         const SizedBox(width: 4),
         Expanded(
           child: Text(
             habitat,
             maxLines: 1,
-            style: TextStyle(fontSize: 11, color: Colors.grey[600]),
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(fontSize: 11, color: Colors.grey[500]),
           ),
         ),
-      ],
-    );
-  }
-
-  Widget _buildStatusFooter(String type, Color color) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          type.toUpperCase(),
-          style: TextStyle(
-            fontSize: 10,
-            fontWeight: FontWeight.w900,
-            color: color,
-            letterSpacing: 0.5,
-          ),
-        ),
-        const Icon(Icons.arrow_forward, size: 16, color: Colors.black12),
       ],
     );
   }

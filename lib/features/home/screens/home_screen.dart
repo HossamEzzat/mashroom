@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../../core/services/auth_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
@@ -48,7 +49,7 @@ class _HomeScreenState extends State<HomeScreen>
   static final List<Mushroom> _sampleMushrooms = [
     Mushroom(
       name: 'Amanita muscaria',
-      image: 'assets/mushrooms/amanita.png',
+      image: 'assets/mushrooms/Amanitamuscaria.jpg',
       type: 'Poisonous',
       habitat: 'Forests, near birch and pine trees',
       edibility: 'Toxic',
@@ -59,7 +60,7 @@ class _HomeScreenState extends State<HomeScreen>
     ),
     Mushroom(
       name: 'Boletus edulis',
-      image: 'assets/mushrooms/porcini.png',
+      image: 'assets/mushrooms/Boletus.jpg',
       type: 'Edible',
       habitat: 'Deciduous and coniferous forests',
       edibility: 'Edible',
@@ -69,7 +70,7 @@ class _HomeScreenState extends State<HomeScreen>
     ),
     Mushroom(
       name: 'Chanterelle',
-      image: 'assets/mushrooms/chanterelle.png',
+      image: 'assets/mushrooms/Cantharellus.jpg',
       type: 'Edible',
       habitat: 'Hardwood and coniferous forests',
       edibility: 'Edible',
@@ -79,7 +80,7 @@ class _HomeScreenState extends State<HomeScreen>
     ),
     Mushroom(
       name: 'Death Cap',
-      image: 'assets/mushrooms/death_cap.png',
+      image: 'assets/mushrooms/Amanita phalloides.jpg',
       type: 'Poisonous',
       habitat: 'Near oak and chestnut trees',
       edibility: 'Deadly',
@@ -116,10 +117,6 @@ class _HomeScreenState extends State<HomeScreen>
                   const SizedBox(height: 24),
                   _buildQuickActions(context),
                   const SizedBox(height: 24),
-                  _buildPremiumBanner(theme),
-                  const SizedBox(height: 32),
-                  _buildCategoryFilter(theme),
-                  const SizedBox(height: 20),
                 ],
               ),
             ),
@@ -144,24 +141,6 @@ class _HomeScreenState extends State<HomeScreen>
       floating: true,
       backgroundColor: const Color(0xFFFBFBFB),
       elevation: 0,
-      title: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Icon(Icons.location_on, color: AppColors.primary, size: 18),
-          const SizedBox(width: 4),
-          Text(
-            "Fungi World",
-            style: theme.textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const Icon(
-            Icons.keyboard_arrow_down,
-            color: AppColors.textPrimary,
-            size: 18,
-          ),
-        ],
-      ),
       actions: [
         IconButton(
           onPressed: () async {
@@ -194,7 +173,7 @@ class _HomeScreenState extends State<HomeScreen>
           },
           icon: CircleAvatar(
             radius: 18,
-            backgroundColor: AppColors.primary.withOpacity(0.1),
+            backgroundColor: AppColors.primary.withValues(alpha: 0.1),
             child: const Icon(
               Icons
                   .logout_rounded, // Changed icon to indicate logout availability or keep person
@@ -209,18 +188,49 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   Widget _buildGreeting(ThemeData theme) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Row(
       children: [
-        Text(
-          "Welcome back,",
-          style: theme.textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Welcome back,",
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: Colors.grey[600],
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                "Mushroom Explorer! 🍄",
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
+            ],
+          ),
         ),
-        Text(
-          "Mushroom Explorer! 🍄",
-          style: theme.textTheme.headlineSmall?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
+        Container(
+          padding: const EdgeInsets.all(3),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: AppColors.primary.withOpacity(0.2),
+              width: 2,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.primary.withOpacity(0.1),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: const CircleAvatar(
+            radius: 24,
+            backgroundImage: AssetImage('assets/stephine.jpg'),
+            backgroundColor: Colors.grey,
           ),
         ),
       ],
@@ -231,24 +241,24 @@ class _HomeScreenState extends State<HomeScreen>
     return AnimatedContainer(
       duration: AppTheme.animationMedium,
       curve: AppTheme.defaultCurve,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
             color: _isSearchFocused
-                ? AppColors.primary.withOpacity(0.15)
-                : Colors.black.withOpacity(0.04),
-            blurRadius: _isSearchFocused ? 15 : 10,
-            offset: const Offset(0, 4),
+                ? AppColors.primary.withValues(alpha: 0.15)
+                : Colors.black.withValues(alpha: 0.04),
+            blurRadius: _isSearchFocused ? 20 : 10,
+            offset: const Offset(0, 8),
           ),
         ],
         border: Border.all(
           color: _isSearchFocused
-              ? AppColors.primary.withOpacity(0.5)
+              ? AppColors.primary.withValues(alpha: 0.5)
               : Colors.transparent,
-          width: 2,
+          width: 1.5,
         ),
       ),
       child: TextField(
@@ -259,10 +269,20 @@ class _HomeScreenState extends State<HomeScreen>
             color: Colors.grey[400],
           ),
           border: InputBorder.none,
-          icon: AnimatedRotation(
-            turns: _isSearchFocused ? 0.5 : 0,
+          icon: AnimatedContainer(
             duration: AppTheme.animationMedium,
-            child: const Icon(Icons.search, color: AppColors.primary),
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: _isSearchFocused
+                  ? AppColors.primary.withValues(alpha: 0.1)
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(
+              Icons.search,
+              color: _isSearchFocused ? AppColors.primary : Colors.grey[400],
+              size: 24,
+            ),
           ),
         ),
       ),
@@ -289,138 +309,25 @@ class _HomeScreenState extends State<HomeScreen>
         const SizedBox(width: 16),
         Expanded(
           child: FeatureCard(
-            onTap: () {}, // Add navigation
-            icon: Icons.auto_awesome,
+            onTap: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: const Text("Recipe collection coming soon!"),
+                  behavior: SnackBarBehavior.floating,
+                  backgroundColor: const Color(0xFF2D3142),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              );
+            },
+            icon: Icons.restaurant_menu_rounded,
             title: "Recipes",
             subtitle: "Culinary Guide",
             color: const Color(0xFF2D3142), // Darker professional tone
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildPremiumBanner(ThemeData theme) {
-    return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0.0, end: 1.0),
-      duration: const Duration(seconds: 2),
-      curve: Curves.easeInOut,
-      builder: (context, value, child) {
-        return Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Color.lerp(
-                  const Color(0xFFFEDC2A),
-                  Colors.orange[300]!,
-                  value,
-                )!,
-                Color.lerp(
-                  Colors.orange[400]!,
-                  const Color(0xFFFEDC2A),
-                  value,
-                )!,
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.circular(24),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.orange.withOpacity(0.3 + value * 0.1),
-                blurRadius: 15 + value * 5,
-                offset: const Offset(0, 8),
-              ),
-            ],
-          ),
-          child: Row(
-            children: [
-              const Icon(Icons.stars, color: Colors.white, size: 40),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      "Get Pro Access",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                        color: Colors.white,
-                      ),
-                    ),
-                    Text(
-                      "Expert ID & Toxic Alerts",
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.9),
-                        fontSize: 13,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const Icon(
-                Icons.arrow_forward_ios,
-                color: Colors.white,
-                size: 16,
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildCategoryFilter(ThemeData theme) {
-    final categories = ["All", "Edible", "Medicinal", "Toxic", "Rare"];
-    return SizedBox(
-      height: 40,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: categories.length,
-        itemBuilder: (context, index) {
-          final isSelected = _selectedCategory == index;
-          return GestureDetector(
-            onTap: () {
-              setState(() {
-                _selectedCategory = index;
-              });
-            },
-            child: AnimatedContainer(
-              duration: AppTheme.animationMedium,
-              curve: AppTheme.springCurve,
-              margin: const EdgeInsets.only(right: 12),
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              alignment: Alignment.center,
-              transform: Matrix4.identity()..scale(isSelected ? 1.05 : 1.0),
-              decoration: BoxDecoration(
-                color: isSelected ? AppColors.primary : Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: isSelected ? Colors.transparent : Colors.grey[200]!,
-                ),
-                boxShadow: isSelected
-                    ? [
-                        BoxShadow(
-                          color: AppColors.primary.withOpacity(0.3),
-                          blurRadius: 8,
-                          offset: const Offset(0, 4),
-                        ),
-                      ]
-                    : null,
-              ),
-              child: Text(
-                categories[index],
-                style: TextStyle(
-                  color: isSelected ? Colors.white : Colors.black87,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                ),
-              ),
-            ),
-          );
-        },
-      ),
     );
   }
 }

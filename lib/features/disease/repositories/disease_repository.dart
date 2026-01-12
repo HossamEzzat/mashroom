@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 
 import '../../../models/prediction_result.dart';
@@ -9,7 +8,7 @@ abstract class IDiseaseRepository {
 }
 
 class DiseaseRepository implements IDiseaseRepository {
-  static const String _apiEndpoint = 'https://api.mushroom-ai.com/v1/classify';
+  // static const String _apiEndpoint = 'https://api.mushroom-ai.com/v1/classify';
 
   @override
   Future<PredictionResult> classifyImage(File imageFile) async {
@@ -20,8 +19,8 @@ class DiseaseRepository implements IDiseaseRepository {
       }
 
       // 2. Prepare Data (Optional: Compress image here if using a real API)
-      final bytes = await imageFile.readAsBytes();
-      final base64Image = base64Encode(bytes);
+      // final bytes = await imageFile.readAsBytes();
+      // final base64Image = base64Encode(bytes);
 
       // 3. Network Call with Timeout
       // For now, we keep the delay to simulate the ML inference time

@@ -13,8 +13,6 @@ class MushroomDetailScreen extends StatefulWidget {
 }
 
 class _MushroomDetailScreenState extends State<MushroomDetailScreen> {
-  int currentIndex = 0;
-
   @override
   Widget build(BuildContext context) {
     final mushroom = widget.mushroom;
@@ -29,7 +27,7 @@ class _MushroomDetailScreenState extends State<MushroomDetailScreen> {
         leading: Padding(
           padding: const EdgeInsets.only(left: 8.0),
           child: CircleAvatar(
-            backgroundColor: Colors.white.withOpacity(0.8),
+            backgroundColor: Colors.white.withValues(alpha: 0.8),
             child: const BackButton(color: Colors.black),
           ),
         ),
@@ -37,7 +35,7 @@ class _MushroomDetailScreenState extends State<MushroomDetailScreen> {
           Padding(
             padding: const EdgeInsets.only(right: 16),
             child: CircleAvatar(
-              backgroundColor: Colors.white.withOpacity(0.8),
+              backgroundColor: Colors.white.withValues(alpha: 0.8),
               child: const Icon(Icons.favorite_border, color: Colors.red),
             ),
           ),
@@ -72,50 +70,19 @@ class _MushroomDetailScreenState extends State<MushroomDetailScreen> {
   }
 
   Widget _buildImageHeader(Mushroom mushroom) {
-    return Stack(
-      children: [
-        Container(
-          height: 400,
-          decoration: BoxDecoration(
-            color: AppColors.secondary.withOpacity(0.05),
-            borderRadius: const BorderRadius.vertical(
-              bottom: Radius.circular(50),
-            ),
-          ),
-          child: PageView.builder(
-            itemCount: 3, // Assuming 3 gallery images
-            onPageChanged: (value) => setState(() => currentIndex = value),
-            itemBuilder: (context, index) => Hero(
-              tag: mushroom.image,
-              child: Padding(
-                padding: const EdgeInsets.all(40.0),
-                child: Image.asset(mushroom.image, fit: BoxFit.contain),
-              ),
-            ),
-          ),
-        ),
-        Positioned(
-          bottom: 30,
-          left: 0,
-          right: 0,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(3, (index) => _buildIndicator(index)),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildIndicator(int index) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      margin: const EdgeInsets.symmetric(horizontal: 4),
-      height: 8,
-      width: currentIndex == index ? 24 : 8,
+    return Container(
+      height: 400,
+      width: double.infinity,
       decoration: BoxDecoration(
-        color: currentIndex == index ? AppColors.primary : Colors.grey.shade400,
-        borderRadius: BorderRadius.circular(4),
+        color: AppColors.secondary.withValues(alpha: 0.05),
+        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(50)),
+      ),
+      child: Hero(
+        tag: mushroom.image,
+        child: Padding(
+          padding: const EdgeInsets.all(40.0),
+          child: Image.asset(mushroom.image, fit: BoxFit.contain),
+        ),
       ),
     );
   }
@@ -134,7 +101,9 @@ class _MushroomDetailScreenState extends State<MushroomDetailScreen> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
-            color: (isPoisonous ? Colors.red : Colors.green).withOpacity(0.1),
+            color: (isPoisonous ? Colors.red : Colors.green).withValues(
+              alpha: 0.1,
+            ),
             borderRadius: BorderRadius.circular(20),
           ),
           child: Text(
