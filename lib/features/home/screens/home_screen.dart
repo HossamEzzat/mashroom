@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/constants/mushroom_data.dart';
 import '../../../core/services/auth_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/feature_card.dart';
 import '../../../models/plant_model.dart';
 import '../../disease/screens/disease_prediction_screen.dart';
+import '../../favorites/screens/favorites_screen.dart';
 import '../widgets/mushroom_grid_item.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -25,10 +27,10 @@ class _HomeScreenState extends State<HomeScreen>
 
   List<Mushroom> get _filteredMushrooms {
     if (_searchQuery.isEmpty) {
-      return _sampleMushrooms;
+      return mushroomList;
     }
     final query = _searchQuery.toLowerCase();
-    return _sampleMushrooms.where((mushroom) {
+    return mushroomList.where((mushroom) {
       final name = mushroom.name.toLowerCase();
       final description = mushroom.description.toLowerCase();
       final type = mushroom.type.toLowerCase();
@@ -67,52 +69,6 @@ class _HomeScreenState extends State<HomeScreen>
     _searchController.dispose();
     super.dispose();
   }
-
-  // Sample mushroom data
-  static final List<Mushroom> _sampleMushrooms = [
-    Mushroom(
-      name: 'Amanita muscaria',
-      image: 'assets/mushrooms/Amanitamuscaria.jpg',
-      type: 'Poisonous',
-      habitat: 'Forests, near birch and pine trees',
-      edibility: 'Toxic',
-      description:
-          'Iconic red cap with white spots. Highly toxic and hallucinogenic.',
-      symptoms: ['Nausea', 'Hallucinations', 'Confusion'],
-      sporePrintColor: 'White',
-    ),
-    Mushroom(
-      name: 'Boletus edulis',
-      image: 'assets/mushrooms/Boletus.jpg',
-      type: 'Edible',
-      habitat: 'Deciduous and coniferous forests',
-      edibility: 'Edible',
-      description: 'Prized edible mushroom, known as porcini or king bolete.',
-      symptoms: [],
-      sporePrintColor: 'Olive-brown',
-    ),
-    Mushroom(
-      name: 'Chanterelle',
-      image: 'assets/mushrooms/Cantharellus.jpg',
-      type: 'Edible',
-      habitat: 'Hardwood and coniferous forests',
-      edibility: 'Edible',
-      description: 'Golden-yellow funnel-shaped mushroom with a fruity aroma.',
-      symptoms: [],
-      sporePrintColor: 'Pale yellow',
-    ),
-    Mushroom(
-      name: 'Death Cap',
-      image: 'assets/mushrooms/Amanita phalloides.jpg',
-      type: 'Poisonous',
-      habitat: 'Near oak and chestnut trees',
-      edibility: 'Deadly',
-      description:
-          'One of the most poisonous mushrooms. Responsible for most fatal poisonings.',
-      symptoms: ['Severe abdominal pain', 'Vomiting', 'Liver failure'],
-      sporePrintColor: 'White',
-    ),
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -165,6 +121,23 @@ class _HomeScreenState extends State<HomeScreen>
       backgroundColor: const Color(0xFFFBFBFB),
       elevation: 0,
       actions: [
+        IconButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const FavoritesScreen()),
+            );
+          },
+          icon: CircleAvatar(
+            radius: 18,
+            backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+            child: const Icon(
+              Icons.favorite_rounded,
+              color: AppColors.primary,
+              size: 20,
+            ),
+          ),
+        ),
         IconButton(
           onPressed: () async {
             // Show confirmation dialog or just logout

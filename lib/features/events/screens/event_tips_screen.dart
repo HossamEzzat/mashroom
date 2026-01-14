@@ -1,6 +1,11 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../data/event_data.dart';
+import '../models/event_model.dart';
+import 'add_event_screen.dart';
+import 'event_details_screen.dart';
 
 class EventScreen extends StatefulWidget {
   final Function(int)? onTabChange;
@@ -23,6 +28,17 @@ class EventScreenState extends State<EventScreen>
     _bottomTabController = TabController(length: 3, vsync: this);
   }
 
+  // State
+  String _searchQuery = '';
+  final List<String> _categories = [
+    "All",
+    "Workshops",
+    "Foraging",
+    "Online",
+    "Exhibitions",
+  ];
+  int _selectedCategoryIndex = 0;
+
   @override
   void dispose() {
     _topTabController.dispose();
@@ -35,79 +51,95 @@ class EventScreenState extends State<EventScreen>
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
       appBar: _buildAppBar(),
-      body: CustomScrollView(
-        slivers: [
-          // 1. Top Discovery Section (Awareness, TIPS, Workshops)
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildSectionHeader("Discovery"),
-                  const SizedBox(height: 12),
-                  _buildTopTabBar(),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    height: 230,
-                    child: TabBarView(
-                      controller: _topTabController,
-                      children: const [
-                        CommunitySlider(),
-                        TipsSlider(),
-                        EventsSlider(),
-                      ],
+      body: NestedScrollView(
+        headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+          return <Widget>[
+            // 1. Top Discovery Section (Awareness, TIPS, Workshops)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    FadeInDown(
+                      duration: const Duration(milliseconds: 600),
+                      child: _buildSectionHeader("Discovery"),
                     ),
+                    const SizedBox(height: 12),
+                    FadeInDown(
+                      delay: const Duration(milliseconds: 100),
+                      duration: const Duration(milliseconds: 600),
+                      child: _buildTopTabBar(),
+                    ),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      height: 200,
+                      child: TabBarView(
+                        controller: _topTabController,
+                        physics: const BouncingScrollPhysics(),
+                        children: const [
+                          CommunitySlider(),
+                          TipsSlider(),
+                          EventsSlider(),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            // 2. Sticky TabBar for "Your Events"
+            SliverPersistentHeader(
+              pinned: true,
+              delegate: _StickyTabBarDelegate(child: _buildBottomTabBar()),
+            ),
+          ];
+        },
+        body: TabBarView(
+          controller: _bottomTabController,
+          physics: const BouncingScrollPhysics(),
+          children: [
+            _buildEventList(), // This tab will show filtered events
+            const Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.bookmark_border, size: 48, color: Colors.grey),
+                  SizedBox(height: 8),
+                  Text(
+                    'No saved events yet',
+                    style: TextStyle(color: Colors.grey),
                   ),
                 ],
               ),
             ),
-          ),
-
-          // 2. Sticky TabBar for "Your Events"
-          SliverPersistentHeader(
-            pinned: true,
-            delegate: _StickyTabBarDelegate(child: _buildBottomTabBar()),
-          ),
-
-          // 3. Vertical List of Events
-          SliverFillRemaining(
-            child: TabBarView(
-              controller: _bottomTabController,
-              children: [
-                _buildEventList([
-                  const EventCardWithDetails(
-                    imagePath: 'assets/mushroom_event1.jpg',
-                    date: 'SAT, JUL 12 • 14:00',
-                    title: 'Mushroom Foraging',
-                    attendees: '86 going',
-                    location: '@Green Forest',
-                  ),
-                  const EventCardWithDetails(
-                    imagePath: 'assets/mushroom_event2.jpg',
-                    date: 'SUN, JUL 20 • 11:00',
-                    title: 'Home Cultivation 101',
-                    attendees: '112 going',
-                    location: '@Community Garden',
-                  ),
-                ]),
-                const Center(child: Text('No saved events yet')),
-                const Center(child: Text('No past events')),
-              ],
+            const Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.history, size: 48, color: Colors.grey),
+                  SizedBox(height: 8),
+                  Text('No past events', style: TextStyle(color: Colors.grey)),
+                ],
+              ),
             ),
-          ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const AddEventScreen()),
+          ],
         ),
-        backgroundColor: AppColors.primary,
-        icon: const Icon(Icons.add, color: Colors.white),
-        label: const Text(
-          "Host Event",
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+      ),
+      floatingActionButton: FadeInUp(
+        delay: const Duration(milliseconds: 500),
+        child: FloatingActionButton.extended(
+          onPressed: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const AddEventScreen()),
+          ),
+          backgroundColor: AppColors.primary,
+          icon: const Icon(Icons.add, color: Colors.white),
+          label: const Text(
+            "Host Event",
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          ),
         ),
       ),
     );
@@ -118,7 +150,8 @@ class EventScreenState extends State<EventScreen>
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
       backgroundColor: Colors.white,
-      elevation: 0.5,
+      elevation: 0,
+      surfaceTintColor: Colors.transparent,
       leading: IconButton(
         icon: const Icon(
           Icons.arrow_back_ios_new,
@@ -133,9 +166,15 @@ class EventScreenState extends State<EventScreen>
           color: Colors.grey[100],
           borderRadius: BorderRadius.circular(12),
         ),
-        child: const TextField(
-          decoration: InputDecoration(
+        child: TextField(
+          onChanged: (value) {
+            setState(() {
+              _searchQuery = value;
+            });
+          },
+          decoration: const InputDecoration(
             hintText: 'Search workshops...',
+            hintStyle: TextStyle(fontSize: 14, color: Colors.grey),
             border: InputBorder.none,
             prefixIcon: Icon(Icons.search, color: Colors.grey, size: 20),
             contentPadding: EdgeInsets.symmetric(vertical: 10),
@@ -148,6 +187,10 @@ class EventScreenState extends State<EventScreen>
           onPressed: () {},
         ),
       ],
+      bottom: PreferredSize(
+        preferredSize: const Size.fromHeight(1.0),
+        child: Container(color: Colors.grey[200], height: 1.0),
+      ),
     );
   }
 
@@ -155,8 +198,8 @@ class EventScreenState extends State<EventScreen>
     return Text(
       title,
       style: const TextStyle(
-        fontSize: 22,
-        fontWeight: FontWeight.bold,
+        fontSize: 24,
+        fontWeight: FontWeight.w800,
         letterSpacing: -0.5,
       ),
     );
@@ -172,10 +215,17 @@ class EventScreenState extends State<EventScreen>
       child: TabBar(
         controller: _topTabController,
         indicator: BoxDecoration(
-          color: AppColors.primary,
+          color: Colors.white,
           borderRadius: BorderRadius.circular(10),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
-        labelColor: Colors.white,
+        labelColor: AppColors.primary,
         unselectedLabelColor: Colors.grey[600],
         dividerColor: Colors.transparent,
         labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
@@ -191,7 +241,7 @@ class EventScreenState extends State<EventScreen>
   Widget _buildBottomTabBar() {
     return Container(
       color: const Color(0xFFF8F9FA),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -199,12 +249,52 @@ class EventScreenState extends State<EventScreen>
             'Your Schedule',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
+          const SizedBox(height: 12),
+          // Category Filter Chips
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            physics: const BouncingScrollPhysics(),
+            child: Row(
+              children: List.generate(_categories.length, (index) {
+                final isSelected = _selectedCategoryIndex == index;
+                return GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _selectedCategoryIndex = index;
+                    });
+                  },
+                  child: Container(
+                    margin: const EdgeInsets.only(right: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: isSelected ? AppColors.primary : Colors.grey[200],
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      _categories[index],
+                      style: TextStyle(
+                        color: isSelected ? Colors.white : Colors.black87,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
+                );
+              }),
+            ),
+          ),
+          const SizedBox(height: 12),
           TabBar(
             controller: _bottomTabController,
             labelColor: AppColors.primary,
             unselectedLabelColor: Colors.grey,
             indicatorColor: AppColors.primary,
             indicatorWeight: 3,
+            dividerColor: Colors.transparent,
+            labelStyle: const TextStyle(fontWeight: FontWeight.w600),
             tabs: const [
               Tab(text: 'GOING'),
               Tab(text: 'SAVED'),
@@ -216,10 +306,60 @@ class EventScreenState extends State<EventScreen>
     );
   }
 
-  Widget _buildEventList(List<Widget> children) {
-    return ListView(
+  Widget _buildEventList() {
+    // 1. Determine Category
+    EventCategory selectedCategory;
+    switch (_categories[_selectedCategoryIndex]) {
+      case "Workshops":
+        selectedCategory = EventCategory.workshop;
+        break;
+      case "Foraging":
+        selectedCategory = EventCategory.foraging;
+        break;
+      case "Online":
+        selectedCategory = EventCategory.online;
+        break;
+      case "Exhibitions":
+        selectedCategory = EventCategory.exhibition;
+        break;
+      default:
+        selectedCategory = EventCategory.all;
+    }
+
+    // 2. Filter Data
+    final filteredEvents = EventData.filterEvents(
+      category: selectedCategory,
+      searchQuery: _searchQuery,
+    );
+
+    // 3. Build List
+    if (filteredEvents.isEmpty) {
+      return const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.event_busy, size: 48, color: Colors.grey),
+            SizedBox(height: 8),
+            Text(
+              'No events found for this category or search.',
+              style: TextStyle(color: Colors.grey),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      );
+    }
+
+    return ListView.builder(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      children: children,
+      itemCount: filteredEvents.length,
+      itemBuilder: (context, index) {
+        final event = filteredEvents[index];
+        return FadeInUp(
+          delay: Duration(milliseconds: 100 * index),
+          child: EventCardWithDetails(event: event),
+        );
+      },
     );
   }
 }
@@ -230,9 +370,9 @@ class _StickyTabBarDelegate extends SliverPersistentHeaderDelegate {
   _StickyTabBarDelegate({required this.child});
 
   @override
-  double get minExtent => 90.0;
+  double get minExtent => 145.0; // Increased to accommodate chips
   @override
-  double get maxExtent => 90.0;
+  double get maxExtent => 145.0;
 
   @override
   Widget build(
@@ -253,14 +393,21 @@ class CommunitySlider extends StatelessWidget {
   const CommunitySlider({super.key});
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
+    return ListView(
       scrollDirection: Axis.horizontal,
-      itemCount: 3,
-      itemBuilder: (context, index) => const _SquareCard(
-        color: Color(0xFFE6F4EA),
-        title: "Ecosystems",
-        icon: Icons.diversity_3,
-      ),
+      physics: const BouncingScrollPhysics(),
+      children: const [
+        _DiscoveryCard(
+          imagePath: 'assets/mushroom_awareness_1.jpg',
+          title: "Fungal Diversity",
+          subtitle: "Eco Systems",
+        ),
+        _DiscoveryCard(
+          imagePath: 'assets/mushroom_event3.jpg',
+          title: "Safe Foraging",
+          subtitle: "Community",
+        ),
+      ],
     );
   }
 }
@@ -269,14 +416,26 @@ class TipsSlider extends StatelessWidget {
   const TipsSlider({super.key});
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
+    return ListView(
       scrollDirection: Axis.horizontal,
-      itemCount: 3,
-      itemBuilder: (context, index) => const _SquareCard(
-        color: Color(0xFFFFF9E6),
-        title: "Soil Health",
-        icon: Icons.eco,
-      ),
+      physics: const BouncingScrollPhysics(),
+      children: const [
+        _DiscoveryCard(
+          imagePath: 'assets/mushroom_tip_1.jpg',
+          title: "Identification",
+          subtitle: "Expert Tips",
+        ),
+        _DiscoveryCard(
+          imagePath: 'assets/mushroom_tip_2.jpg',
+          title: "Spore Printing",
+          subtitle: "Techniques",
+        ),
+        _DiscoveryCard(
+          imagePath: 'assets/mushroom_tip_3.jpg',
+          title: "Cooking 101",
+          subtitle: "Culinary",
+        ),
+      ],
     );
   }
 }
@@ -285,27 +444,39 @@ class EventsSlider extends StatelessWidget {
   const EventsSlider({super.key});
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
+    return ListView(
       scrollDirection: Axis.horizontal,
-      itemCount: 3,
-      itemBuilder: (context, index) => const _SquareCard(
-        color: Color(0xfff8d7ff),
-        title: "Workshops",
-        icon: Icons.calendar_month,
-      ),
+      physics: const BouncingScrollPhysics(),
+      children: const [
+        _DiscoveryCard(
+          imagePath: 'assets/mushroom_workshop_1.jpg',
+          title: "Grow Kits",
+          subtitle: "Workshop",
+        ),
+        _DiscoveryCard(
+          imagePath: 'assets/mushroom_workshop_2.jpg',
+          title: "Mycology Lab",
+          subtitle: "Advanced",
+        ),
+        _DiscoveryCard(
+          imagePath: 'assets/mushroom_workshop_3.jpg',
+          title: "Field Trip",
+          subtitle: "Outdoor",
+        ),
+      ],
     );
   }
 }
 
-class _SquareCard extends StatelessWidget {
-  final Color color;
+class _DiscoveryCard extends StatelessWidget {
+  final String imagePath;
   final String title;
-  final IconData icon;
+  final String subtitle;
 
-  const _SquareCard({
-    required this.color,
+  const _DiscoveryCard({
+    required this.imagePath,
     required this.title,
-    required this.icon,
+    required this.subtitle,
   });
 
   @override
@@ -314,103 +485,229 @@ class _SquareCard extends StatelessWidget {
       width: 160,
       margin: const EdgeInsets.only(right: 12),
       decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, size: 40, color: Colors.black87),
-          const SizedBox(height: 12),
-          Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
         ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            Image.asset(
+              imagePath,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) =>
+                  Container(color: Colors.grey[300]),
+            ),
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Colors.transparent, Colors.black.withOpacity(0.8)],
+                  stops: const [0.5, 1.0],
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    subtitle.toUpperCase(),
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.8),
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.0,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 }
 
 // --- Vertical Event Card ---
-class EventCardWithDetails extends StatelessWidget {
-  final String imagePath;
-  final String date;
-  final String title;
-  final String attendees;
-  final String location;
+class EventCardWithDetails extends StatefulWidget {
+  final Event event;
 
-  const EventCardWithDetails({
-    super.key,
-    required this.imagePath,
-    required this.date,
-    required this.title,
-    required this.attendees,
-    required this.location,
-  });
+  const EventCardWithDetails({super.key, required this.event});
+
+  @override
+  State<EventCardWithDetails> createState() => _EventCardWithDetailsState();
+}
+
+class _EventCardWithDetailsState extends State<EventCardWithDetails> {
+  late bool isBookmarked;
+
+  @override
+  void initState() {
+    super.initState();
+    isBookmarked = widget.event.isBookmarked;
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => EventDetailsScreen(event: widget.event),
           ),
-        ],
-      ),
-      child: Row(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: Container(
-              width: 80,
-              height: 80,
-              color: Colors.grey[300],
-            ), // Replace with Image.asset
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  date,
-                  style: TextStyle(
-                    color: AppColors.primary,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  "$attendees • $location",
-                  style: TextStyle(color: Colors.grey[600], fontSize: 12),
-                ),
-              ],
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 16),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 15,
+              offset: const Offset(0, 5),
             ),
-          ),
-          const Icon(Icons.star_border, color: Colors.grey),
-        ],
+          ],
+        ),
+        child: Row(
+          children: [
+            Hero(
+              tag: widget.event.id, // Unique tag for Hero animation
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.asset(
+                  widget.event.imagePath,
+                  width: 80,
+                  height: 80,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    width: 80,
+                    height: 80,
+                    color: Colors.grey[300],
+                    child: const Icon(
+                      Icons.image_not_supported,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.event.dateFormatted,
+                    style: TextStyle(
+                      color: AppColors.primary,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    widget.event.title,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.people_outline,
+                        size: 14,
+                        color: Colors.grey[600],
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        "${widget.event.attendees} going",
+                        style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                      ),
+                      const SizedBox(width: 12),
+                      Icon(
+                        Icons.location_on_outlined,
+                        size: 14,
+                        color: Colors.grey[600],
+                      ),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          widget.event.location.replaceAll('@', ''),
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 12,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            InkWell(
+              onTap: () {
+                setState(() {
+                  isBookmarked = !isBookmarked;
+                });
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      isBookmarked ? "Event Saved" : "Event Removed",
+                    ),
+                    duration: const Duration(milliseconds: 600),
+                  ),
+                );
+              },
+              borderRadius: BorderRadius.circular(10),
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.grey[50],
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  isBookmarked ? Icons.bookmark : Icons.bookmark_border,
+                  color: isBookmarked ? AppColors.primary : Colors.grey,
+                  size: 20,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 }
 
-// Placeholder for AddEventScreen
-class AddEventScreen extends StatelessWidget {
-  const AddEventScreen({super.key});
-  @override
-  Widget build(BuildContext context) =>
-      Scaffold(appBar: AppBar(title: const Text("Host Event")));
-}
+// End of file

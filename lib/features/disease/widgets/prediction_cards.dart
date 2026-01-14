@@ -1,3 +1,4 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
@@ -15,47 +16,90 @@ class PlantPredictionCards extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
-        title: const Text("Prediction Guide"),
+        title: const Text(
+          "Prediction Guide",
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+        ),
         centerTitle: true,
-        // Using standard back button logic to maintain navigation stack
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, size: 20),
-          onPressed: () => Navigator.of(context).pop(),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: Builder(
+          builder: (context) {
+            // Check if we can pop, otherwise show nothing or a specific action
+            if (Navigator.canPop(context)) {
+              return IconButton(
+                icon: const CircleAvatar(
+                  backgroundColor: Colors.white,
+                  child: Icon(
+                    Icons.arrow_back_ios_new,
+                    size: 18,
+                    color: Colors.black,
+                  ),
+                ),
+                onPressed: () => Navigator.of(context).pop(),
+              );
+            }
+            return const SizedBox.shrink();
+          },
         ),
       ),
       body: ListView(
         padding: const EdgeInsets.all(20.0),
+        physics: const BouncingScrollPhysics(),
         children: [
-          _buildHeroSection(theme),
+          FadeInDown(
+            duration: const Duration(milliseconds: 600),
+            child: _buildHeroSection(theme),
+          ),
           const SizedBox(height: 24),
 
           // Disease Classification Card
-          _PredictionFeatureCard(
-            title: 'Disease Classification',
-            subtitle:
-                'Identify fungal infections and physiological disorders in real-time.',
-            imagePath: 'assets/mushroom.jpg',
-            accentColor: AppColors.primary,
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const DiseasePredictionScreen(),
+          FadeInUp(
+            duration: const Duration(milliseconds: 600),
+            delay: const Duration(milliseconds: 200),
+            child: _PredictionFeatureCard(
+              title: 'Disease Classification',
+              subtitle:
+                  'Identify fungal infections and physiological disorders in real-time.',
+              imagePath: 'assets/mushroom.jpg',
+              accentColor: AppColors.primary,
+              isActive: true,
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const DiseasePredictionScreen(),
+                ),
               ),
             ),
           ),
 
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
 
-          // Potential 2nd Card (Example: Edibility check)
-          _PredictionFeatureCard(
-            title: 'Edibility Scanner',
-            subtitle:
-                'AI-powered assessment of physical characteristics for edibility.',
-            imagePath: 'assets/mushroom_onboard.jpg',
-            accentColor: Colors.orangeAccent,
-            onTap: () {
-              // Future feature navigation
-            },
+          // Edibility Scanner
+          FadeInUp(
+            duration: const Duration(milliseconds: 600),
+            delay: const Duration(milliseconds: 400),
+            child: _PredictionFeatureCard(
+              title: 'Edibility Scanner',
+              subtitle:
+                  'AI-powered assessment of physical characteristics for edibility.',
+              imagePath: 'assets/mushroom_types.jpg', // Fixed asset path
+              accentColor: Colors.orangeAccent,
+              isActive: false, // Feature not yet ready
+              badgeText: "COMING SOON",
+              onTap: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: const Text("Edibility Scanner is coming soon!"),
+                    behavior: SnackBarBehavior.floating,
+                    backgroundColor: Colors.orangeAccent,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                );
+              },
+            ),
           ),
         ],
       ),
@@ -69,14 +113,18 @@ class PlantPredictionCards extends StatelessWidget {
         Text(
           "Mushroom AI",
           style: theme.textTheme.headlineMedium?.copyWith(
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w800,
             color: Colors.black87,
+            letterSpacing: -0.5,
           ),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 8),
         Text(
           "Select a diagnostic tool to begin your analysis",
-          style: theme.textTheme.bodyMedium?.copyWith(color: Colors.grey),
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: Colors.grey[600],
+            fontSize: 16,
+          ),
         ),
       ],
     );
@@ -89,6 +137,8 @@ class _PredictionFeatureCard extends StatelessWidget {
   final String imagePath;
   final Color accentColor;
   final VoidCallback onTap;
+  final bool isActive;
+  final String badgeText;
 
   const _PredictionFeatureCard({
     required this.title,
@@ -96,6 +146,8 @@ class _PredictionFeatureCard extends StatelessWidget {
     required this.imagePath,
     required this.accentColor,
     required this.onTap,
+    this.isActive = true,
+    this.badgeText = "AI ACTIVE",
   });
 
   @override
@@ -108,9 +160,9 @@ class _PredictionFeatureCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 15,
-              offset: const Offset(0, 8),
+              color: accentColor.withValues(alpha: 0.1),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
             ),
           ],
         ),
@@ -123,32 +175,79 @@ class _PredictionFeatureCard extends StatelessWidget {
                   borderRadius: const BorderRadius.vertical(
                     top: Radius.circular(24),
                   ),
-                  child: Image.asset(
-                    imagePath,
-                    width: double.infinity,
-                    height: 180,
-                    fit: BoxFit.cover,
+                  child: ShaderMask(
+                    shaderCallback: (rect) {
+                      return LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.transparent,
+                          Colors.black.withValues(alpha: 0.7),
+                        ],
+                      ).createShader(rect);
+                    },
+                    blendMode: BlendMode.darken,
+                    child: Image.asset(
+                      imagePath,
+                      width: double.infinity,
+                      height: 180,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          height: 180,
+                          color: Colors.grey[200],
+                          child: const Center(
+                            child: Icon(
+                              Icons.image_not_supported,
+                              color: Colors.grey,
+                              size: 40,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
                   ),
                 ),
                 Positioned(
-                  top: 12,
-                  right: 12,
+                  top: 16,
+                  right: 16,
                   child: Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 12,
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: accentColor,
-                      borderRadius: BorderRadius.circular(12),
+                      color: isActive ? accentColor : Colors.grey,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.2),
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
-                    child: const Text(
-                      "AI ACTIVE",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (isActive) ...[
+                          const Icon(
+                            Icons.auto_awesome,
+                            color: Colors.white,
+                            size: 12,
+                          ),
+                          const SizedBox(width: 4),
+                        ],
+                        Text(
+                          badgeText,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -157,7 +256,7 @@ class _PredictionFeatureCard extends StatelessWidget {
 
             // Content Section
             Padding(
-              padding: const EdgeInsets.all(20.0),
+              padding: const EdgeInsets.all(24.0),
               child: Row(
                 children: [
                   Expanded(
@@ -172,22 +271,31 @@ class _PredictionFeatureCard extends StatelessWidget {
                             letterSpacing: -0.5,
                           ),
                         ),
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 6),
                         Text(
                           subtitle,
                           style: TextStyle(
                             color: Colors.grey.shade600,
                             fontSize: 13,
-                            height: 1.4,
+                            height: 1.5,
                           ),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  CircleAvatar(
-                    backgroundColor: accentColor.withValues(alpha: 0.1),
-                    child: Icon(Icons.chevron_right, color: accentColor),
+                  const SizedBox(width: 16),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: isActive
+                          ? accentColor.withValues(alpha: 0.1)
+                          : Colors.grey.withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.arrow_forward_rounded,
+                      color: isActive ? accentColor : Colors.grey,
+                    ),
                   ),
                 ],
               ),
