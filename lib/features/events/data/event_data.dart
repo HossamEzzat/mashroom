@@ -56,6 +56,18 @@ class EventData {
 
   static List<Event> get upcomingEvents => _events; // Placeholder for logic
 
+  static List<Event> get savedEvents =>
+      _events.where((e) => e.isBookmarked).toList();
+
+  static void toggleBookmark(String eventId) {
+    final index = _events.indexWhere((e) => e.id == eventId);
+    if (index != -1) {
+      _events[index] = _events[index].copyWith(
+        isBookmarked: !_events[index].isBookmarked,
+      );
+    }
+  }
+
   static List<Event> filterEvents({
     required EventCategory category,
     String searchQuery = '',

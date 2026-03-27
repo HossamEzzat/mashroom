@@ -43,7 +43,32 @@ class Event {
       'DEC',
     ];
     final weekDays = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
-
     return "${weekDays[date.weekday - 1]}, ${months[date.month - 1]} ${date.day} • ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}";
+  }
+
+  Event copyWith({
+    String? id,
+    String? title,
+    DateTime? date,
+    String? location,
+    int? attendees,
+    String? imagePath,
+    EventCategory? category,
+    String? description,
+    bool? isBookmarked,
+    double? price,
+  }) {
+    return Event(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      date: date ?? this.date,
+      location: location ?? this.location,
+      attendees: attendees ?? this.attendees,
+      imagePath: imagePath ?? this.imagePath,
+      category: category ?? this.category,
+      description: description ?? this.description,
+      isBookmarked: isBookmarked ?? this.isBookmarked,
+      price: price ?? this.price,
+    );
   }
 }

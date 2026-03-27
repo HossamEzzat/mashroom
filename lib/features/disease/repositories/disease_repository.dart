@@ -1,6 +1,10 @@
 import 'dart:io';
+import 'dart:convert';
+
+import 'package:http/http.dart' as http;
 
 import '../../../models/prediction_result.dart';
+import '../../../core/constants/api_endpoints.dart';
 
 /// Define an interface to allow for easy mocking/testing
 abstract class IDiseaseRepository {
@@ -8,7 +12,9 @@ abstract class IDiseaseRepository {
 }
 
 class DiseaseRepository implements IDiseaseRepository {
-  // static const String _apiEndpoint = 'https://api.mushroom-ai.com/v1/classify';
+  final String apiUrl;
+
+  DiseaseRepository({this.apiUrl = ApiEndpoints.predictLocal});
 
   @override
   Future<PredictionResult> classifyImage(File imageFile) async {
@@ -23,16 +29,11 @@ class DiseaseRepository implements IDiseaseRepository {
       // final base64Image = base64Encode(bytes);
 
       // 3. Network Call with Timeout
-      // For now, we keep the delay to simulate the ML inference time
-      await Future.delayed(const Duration(seconds: 1));
+      var request = http.MultipartRequest('POST', Uri.parse(apiUrl));
+      request.files.add(await http.MultipartFile.fromPath('image', imageFile.path));
 
-      // 4. API Logic (Uncomment for production)
-      /*
-      final response = await http.post(
-        Uri.parse(_apiEndpoint),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'image': base64Image}),
-      ).timeout(const Duration(seconds: 15));
+      var streamedResponse = await request.send().timeout(const Duration(seconds: 30));
+      var response = await http.Response.fromStream(streamedResponse);
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -40,10 +41,6 @@ class DiseaseRepository implements IDiseaseRepository {
       } else {
         return PredictionResult.error('Server Error: ${response.statusCode}');
       }
-      */
-
-      // 5. Success Mock
-      return _generateMockSuccess();
     } on SocketException {
       return PredictionResult.error('No internet connection');
     } on PathNotFoundException {
@@ -51,18 +48,5 @@ class DiseaseRepository implements IDiseaseRepository {
     } catch (e) {
       return PredictionResult.error('Unexpected error: ${e.toString()}');
     }
-  }
-
-  PredictionResult _generateMockSuccess() {
-    return PredictionResult(
-      prediction: 'Agaricus Bisporus',
-      confidence: 0.92,
-      probabilities: {
-        'Agaricus Bisporus': 0.92,
-        'Amanita Muscaria': 0.05,
-        'Boletus Edulis': 0.02,
-        'Other': 0.01,
-      },
-    );
   }
 }

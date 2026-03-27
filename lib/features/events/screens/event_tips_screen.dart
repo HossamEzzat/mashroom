@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 
@@ -29,7 +30,7 @@ class EventScreenState extends State<EventScreen>
   }
 
   // State
-  String _searchQuery = '';
+  final String _searchQuery = '';
   final List<String> _categories = [
     "All",
     "Workshops",
@@ -78,9 +79,58 @@ class EventScreenState extends State<EventScreen>
                         controller: _topTabController,
                         physics: const BouncingScrollPhysics(),
                         children: const [
-                          CommunitySlider(),
-                          TipsSlider(),
-                          EventsSlider(),
+                          DiscoverySlider(
+                            items: [
+                              DiscoveryItem(
+                                imagePath: 'assets/mushroom_awareness_1.jpg',
+                                title: "Fungal Diversity",
+                                subtitle: "Eco Systems",
+                              ),
+                              DiscoveryItem(
+                                imagePath: 'assets/mushroom_event3.jpg',
+                                title: "Safe Foraging",
+                                subtitle: "Community",
+                              ),
+                            ],
+                          ),
+                          DiscoverySlider(
+                            items: [
+                              DiscoveryItem(
+                                imagePath: 'assets/mushroom_tip_1.jpg',
+                                title: "Identification",
+                                subtitle: "Expert Tips",
+                              ),
+                              DiscoveryItem(
+                                imagePath: 'assets/mushroom_tip_2.jpg',
+                                title: "Spore Printing",
+                                subtitle: "Techniques",
+                              ),
+                              DiscoveryItem(
+                                imagePath: 'assets/mushroom_tip_3.jpg',
+                                title: "Cooking 101",
+                                subtitle: "Culinary",
+                              ),
+                            ],
+                          ),
+                          DiscoverySlider(
+                            items: [
+                              DiscoveryItem(
+                                imagePath: 'assets/mushroom_workshop_1.jpg',
+                                title: "Grow Kits",
+                                subtitle: "Workshop",
+                              ),
+                              DiscoveryItem(
+                                imagePath: 'assets/mushroom_workshop_2.jpg',
+                                title: "Mycology Lab",
+                                subtitle: "Advanced",
+                              ),
+                              DiscoveryItem(
+                                imagePath: 'assets/mushroom_workshop_3.jpg',
+                                title: "Field Trip",
+                                subtitle: "Outdoor",
+                              ),
+                            ],
+                          ),
                         ],
                       ),
                     ),
@@ -101,19 +151,7 @@ class EventScreenState extends State<EventScreen>
           physics: const BouncingScrollPhysics(),
           children: [
             _buildEventList(), // This tab will show filtered events
-            const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.bookmark_border, size: 48, color: Colors.grey),
-                  SizedBox(height: 8),
-                  Text(
-                    'No saved events yet',
-                    style: TextStyle(color: Colors.grey),
-                  ),
-                ],
-              ),
-            ),
+            _buildSavedEventsList(),
             const Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -160,33 +198,16 @@ class EventScreenState extends State<EventScreen>
         ),
         onPressed: () => widget.onTabChange?.call(0),
       ),
-      title: Container(
-        height: 40,
-        decoration: BoxDecoration(
-          color: Colors.grey[100],
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: TextField(
-          onChanged: (value) {
-            setState(() {
-              _searchQuery = value;
-            });
-          },
-          decoration: const InputDecoration(
-            hintText: 'Search workshops...',
-            hintStyle: TextStyle(fontSize: 14, color: Colors.grey),
-            border: InputBorder.none,
-            prefixIcon: Icon(Icons.search, color: Colors.grey, size: 20),
-            contentPadding: EdgeInsets.symmetric(vertical: 10),
-          ),
+      title: const Text(
+        'Community Events',
+        style: TextStyle(
+          color: Colors.black87,
+          fontWeight: FontWeight.bold,
+          fontSize: 18,
+          letterSpacing: 0.5,
         ),
       ),
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.notifications_none, color: Colors.black),
-          onPressed: () {},
-        ),
-      ],
+      centerTitle: true,
       bottom: PreferredSize(
         preferredSize: const Size.fromHeight(1.0),
         child: Container(color: Colors.grey[200], height: 1.0),
@@ -219,7 +240,7 @@ class EventScreenState extends State<EventScreen>
           borderRadius: BorderRadius.circular(10),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withValues(alpha: 0.1),
               blurRadius: 4,
               offset: const Offset(0, 2),
             ),
@@ -270,15 +291,28 @@ class EventScreenState extends State<EventScreen>
                       vertical: 8,
                     ),
                     decoration: BoxDecoration(
-                      color: isSelected ? AppColors.primary : Colors.grey[200],
+                      color: isSelected ? AppColors.primary : Colors.white,
                       borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: isSelected ? Colors.transparent : Colors.grey.shade300,
+                      ),
+                      boxShadow: isSelected
+                          ? [
+                              BoxShadow(
+                                color: AppColors.primary.withValues(alpha: 0.3),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
+                              )
+                            ]
+                          : [],
                     ),
                     child: Text(
                       _categories[index],
                       style: TextStyle(
                         color: isSelected ? Colors.white : Colors.black87,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w700,
                         fontSize: 13,
+                        letterSpacing: 0.3,
                       ),
                     ),
                   ),
@@ -357,7 +391,52 @@ class EventScreenState extends State<EventScreen>
         final event = filteredEvents[index];
         return FadeInUp(
           delay: Duration(milliseconds: 100 * index),
-          child: EventCardWithDetails(event: event),
+          child: EventCardWithDetails(
+            event: event,
+            onBookmarkToggled: () {
+              setState(() {
+                EventData.toggleBookmark(event.id);
+              });
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildSavedEventsList() {
+    final savedEvents = EventData.savedEvents;
+    if (savedEvents.isEmpty) {
+      return const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.bookmark_border, size: 48, color: Colors.grey),
+            SizedBox(height: 8),
+            Text(
+              'No saved events yet',
+              style: TextStyle(color: Colors.grey),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      itemCount: savedEvents.length,
+      itemBuilder: (context, index) {
+        final event = savedEvents[index];
+        return FadeInUp(
+          delay: Duration(milliseconds: 100 * index),
+          child: EventCardWithDetails(
+            event: event,
+            onBookmarkToggled: () {
+              setState(() {
+                EventData.toggleBookmark(event.id);
+              });
+            },
+          ),
         );
       },
     );
@@ -370,9 +449,9 @@ class _StickyTabBarDelegate extends SliverPersistentHeaderDelegate {
   _StickyTabBarDelegate({required this.child});
 
   @override
-  double get minExtent => 145.0; // Increased to accommodate chips
+  double get minExtent => 165.0; // Increased to securely accommodate all font-scales
   @override
-  double get maxExtent => 145.0;
+  double get maxExtent => 165.0;
 
   @override
   Widget build(
@@ -384,88 +463,44 @@ class _StickyTabBarDelegate extends SliverPersistentHeaderDelegate {
   }
 
   @override
-  bool shouldRebuild(_StickyTabBarDelegate oldDelegate) => false;
+  bool shouldRebuild(_StickyTabBarDelegate oldDelegate) => true;
 }
 
 // --- Supporting Widgets (Slider Items) ---
 
-class CommunitySlider extends StatelessWidget {
-  const CommunitySlider({super.key});
+class DiscoverySlider extends StatelessWidget {
+  final List<DiscoveryItem> items;
+
+  const DiscoverySlider({super.key, required this.items});
+
   @override
   Widget build(BuildContext context) {
-    return ListView(
+    return ListView.builder(
       scrollDirection: Axis.horizontal,
       physics: const BouncingScrollPhysics(),
-      children: const [
-        _DiscoveryCard(
-          imagePath: 'assets/mushroom_awareness_1.jpg',
-          title: "Fungal Diversity",
-          subtitle: "Eco Systems",
-        ),
-        _DiscoveryCard(
-          imagePath: 'assets/mushroom_event3.jpg',
-          title: "Safe Foraging",
-          subtitle: "Community",
-        ),
-      ],
+      itemCount: items.length,
+      itemBuilder: (context, index) {
+        final item = items[index];
+        return _DiscoveryCard(
+          imagePath: item.imagePath,
+          title: item.title,
+          subtitle: item.subtitle,
+        );
+      },
     );
   }
 }
 
-class TipsSlider extends StatelessWidget {
-  const TipsSlider({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return ListView(
-      scrollDirection: Axis.horizontal,
-      physics: const BouncingScrollPhysics(),
-      children: const [
-        _DiscoveryCard(
-          imagePath: 'assets/mushroom_tip_1.jpg',
-          title: "Identification",
-          subtitle: "Expert Tips",
-        ),
-        _DiscoveryCard(
-          imagePath: 'assets/mushroom_tip_2.jpg',
-          title: "Spore Printing",
-          subtitle: "Techniques",
-        ),
-        _DiscoveryCard(
-          imagePath: 'assets/mushroom_tip_3.jpg',
-          title: "Cooking 101",
-          subtitle: "Culinary",
-        ),
-      ],
-    );
-  }
-}
+class DiscoveryItem {
+  final String imagePath;
+  final String title;
+  final String subtitle;
 
-class EventsSlider extends StatelessWidget {
-  const EventsSlider({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return ListView(
-      scrollDirection: Axis.horizontal,
-      physics: const BouncingScrollPhysics(),
-      children: const [
-        _DiscoveryCard(
-          imagePath: 'assets/mushroom_workshop_1.jpg',
-          title: "Grow Kits",
-          subtitle: "Workshop",
-        ),
-        _DiscoveryCard(
-          imagePath: 'assets/mushroom_workshop_2.jpg',
-          title: "Mycology Lab",
-          subtitle: "Advanced",
-        ),
-        _DiscoveryCard(
-          imagePath: 'assets/mushroom_workshop_3.jpg',
-          title: "Field Trip",
-          subtitle: "Outdoor",
-        ),
-      ],
-    );
-  }
+  const DiscoveryItem({
+    required this.imagePath,
+    required this.title,
+    required this.subtitle,
+  });
 }
 
 class _DiscoveryCard extends StatelessWidget {
@@ -489,7 +524,7 @@ class _DiscoveryCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -511,36 +546,62 @@ class _DiscoveryCard extends StatelessWidget {
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [Colors.transparent, Colors.black.withOpacity(0.8)],
+                  colors: [
+                    Colors.transparent,
+                    Colors.black.withValues(alpha: 0.8),
+                  ],
                   stops: const [0.5, 1.0],
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    subtitle.toUpperCase(),
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.8),
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1.0,
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: ClipRRect(
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.35),
+                      border: Border(
+                        top: BorderSide(
+                          color: Colors.white.withValues(alpha: 0.2),
+                          width: 1,
+                        ),
+                      ),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          subtitle.toUpperCase(),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.9),
+                            fontSize: 10,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 1.2,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
           ],
@@ -551,23 +612,11 @@ class _DiscoveryCard extends StatelessWidget {
 }
 
 // --- Vertical Event Card ---
-class EventCardWithDetails extends StatefulWidget {
+class EventCardWithDetails extends StatelessWidget {
   final Event event;
+  final VoidCallback? onBookmarkToggled;
 
-  const EventCardWithDetails({super.key, required this.event});
-
-  @override
-  State<EventCardWithDetails> createState() => _EventCardWithDetailsState();
-}
-
-class _EventCardWithDetailsState extends State<EventCardWithDetails> {
-  late bool isBookmarked;
-
-  @override
-  void initState() {
-    super.initState();
-    isBookmarked = widget.event.isBookmarked;
-  }
+  const EventCardWithDetails({super.key, required this.event, this.onBookmarkToggled});
 
   @override
   Widget build(BuildContext context) {
@@ -576,7 +625,7 @@ class _EventCardWithDetailsState extends State<EventCardWithDetails> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => EventDetailsScreen(event: widget.event),
+            builder: (_) => EventDetailsScreen(event: event),
           ),
         );
       },
@@ -585,23 +634,24 @@ class _EventCardWithDetailsState extends State<EventCardWithDetails> {
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.grey.shade100, width: 1.5),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.04),
+              color: AppColors.primary.withValues(alpha: 0.04),
               blurRadius: 15,
-              offset: const Offset(0, 5),
+              offset: const Offset(0, 4),
             ),
           ],
         ),
         child: Row(
           children: [
             Hero(
-              tag: widget.event.id, // Unique tag for Hero animation
+              tag: event.id, // Unique tag for Hero animation
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12),
                 child: Image.asset(
-                  widget.event.imagePath,
+                  event.imagePath,
                   width: 80,
                   height: 80,
                   fit: BoxFit.cover,
@@ -623,7 +673,7 @@ class _EventCardWithDetailsState extends State<EventCardWithDetails> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    widget.event.dateFormatted,
+                    event.dateFormatted,
                     style: TextStyle(
                       color: AppColors.primary,
                       fontSize: 11,
@@ -633,11 +683,14 @@ class _EventCardWithDetailsState extends State<EventCardWithDetails> {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    widget.event.title,
+                    event.title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                       color: Colors.black87,
+                      height: 1.2,
                     ),
                   ),
                   const SizedBox(height: 6),
@@ -650,7 +703,7 @@ class _EventCardWithDetailsState extends State<EventCardWithDetails> {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        "${widget.event.attendees} going",
+                        "${event.attendees} going",
                         style: TextStyle(color: Colors.grey[600], fontSize: 12),
                       ),
                       const SizedBox(width: 12),
@@ -662,7 +715,7 @@ class _EventCardWithDetailsState extends State<EventCardWithDetails> {
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
-                          widget.event.location.replaceAll('@', ''),
+                          event.location.replaceAll('@', ''),
                           style: TextStyle(
                             color: Colors.grey[600],
                             fontSize: 12,
@@ -675,33 +728,19 @@ class _EventCardWithDetailsState extends State<EventCardWithDetails> {
                 ],
               ),
             ),
-            InkWell(
+            _BookmarkButton(
+              isBookmarked: event.isBookmarked,
               onTap: () {
-                setState(() {
-                  isBookmarked = !isBookmarked;
-                });
+                if (onBookmarkToggled != null) onBookmarkToggled!();
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(
-                      isBookmarked ? "Event Saved" : "Event Removed",
+                      !event.isBookmarked ? "Event Saved" : "Event Removed",
                     ),
                     duration: const Duration(milliseconds: 600),
                   ),
                 );
               },
-              borderRadius: BorderRadius.circular(10),
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.grey[50],
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(
-                  isBookmarked ? Icons.bookmark : Icons.bookmark_border,
-                  color: isBookmarked ? AppColors.primary : Colors.grey,
-                  size: 20,
-                ),
-              ),
             ),
           ],
         ),
@@ -710,4 +749,29 @@ class _EventCardWithDetailsState extends State<EventCardWithDetails> {
   }
 }
 
-// End of file
+class _BookmarkButton extends StatelessWidget {
+  final bool isBookmarked;
+  final VoidCallback onTap;
+
+  const _BookmarkButton({required this.isBookmarked, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(10),
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: Colors.grey[50],
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Icon(
+          isBookmarked ? Icons.bookmark : Icons.bookmark_border,
+          color: isBookmarked ? AppColors.primary : Colors.grey,
+          size: 20,
+        ),
+      ),
+    );
+  }
+}

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../screens/disease_prediction_screen.dart';
+import '../screens/edibility_scanner_screen.dart';
 
 class PlantPredictionCards extends StatelessWidget {
   final Function(int)? onTabChange;
@@ -85,17 +86,13 @@ class PlantPredictionCards extends StatelessWidget {
                   'AI-powered assessment of physical characteristics for edibility.',
               imagePath: 'assets/mushroom_types.jpg', // Fixed asset path
               accentColor: Colors.orangeAccent,
-              isActive: false, // Feature not yet ready
-              badgeText: "COMING SOON",
+              isActive: true, // Feature activated
+              badgeText: "AI ACTIVE",
               onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: const Text("Edibility Scanner is coming soon!"),
-                    behavior: SnackBarBehavior.floating,
-                    backgroundColor: Colors.orangeAccent,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const EdibilityScannerScreen(),
                   ),
                 );
               },

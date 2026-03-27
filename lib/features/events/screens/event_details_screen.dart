@@ -27,12 +27,14 @@ class EventDetailsScreen extends StatelessWidget {
                       _buildTitleSection(),
                       const SizedBox(height: 24),
                       _buildInfoRow(
+                        context,
                         Icons.calendar_today_outlined,
                         event.dateFormatted,
                         "Add to Calendar",
                       ),
                       const SizedBox(height: 16),
                       _buildInfoRow(
+                        context,
                         Icons.location_on_outlined,
                         event.location.replaceAll('@', ''),
                         "Get Directions",
@@ -91,7 +93,11 @@ class EventDetailsScreen extends StatelessWidget {
               size: 20,
             ),
           ),
-          onPressed: () {},
+          onPressed: () {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Sharing coming soon!')),
+            );
+          },
         ),
         const SizedBox(width: 16),
       ],
@@ -172,7 +178,7 @@ class EventDetailsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoRow(IconData icon, String text, String actionText) {
+  Widget _buildInfoRow(BuildContext context, IconData icon, String text, String actionText) {
     return FadeInUp(
       delay: const Duration(milliseconds: 200),
       duration: const Duration(milliseconds: 500),
@@ -201,7 +207,11 @@ class EventDetailsScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 GestureDetector(
-                  onTap: () {}, // Action handler
+                  onTap: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Directions opening in Maps...')),
+                    );
+                  },
                   child: Text(
                     actionText,
                     style: TextStyle(

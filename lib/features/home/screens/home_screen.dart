@@ -8,7 +8,9 @@ import '../../../core/widgets/feature_card.dart';
 import '../../../models/plant_model.dart';
 import '../../disease/screens/disease_prediction_screen.dart';
 import '../../favorites/screens/favorites_screen.dart';
+import '../../recipes/screens/sustainable_recipe_screen.dart';
 import '../widgets/mushroom_grid_item.dart';
+import 'geo_recommender_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -296,42 +298,59 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   Widget _buildQuickActions(BuildContext context) {
-    return Row(
+    return Column(
       children: [
-        Expanded(
-          child: FeatureCard(
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const DiseasePredictionScreen(),
-              ),
-            ),
-            icon: Icons.filter_center_focus, // More "Scan-like" icon
-            title: "Identify",
-            subtitle: "Scan Species",
-            color: AppColors.primary,
-          ),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: FeatureCard(
-            onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: const Text("Recipe collection coming soon!"),
-                  behavior: SnackBarBehavior.floating,
-                  backgroundColor: const Color(0xFF2D3142),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+        Row(
+          children: [
+            Expanded(
+              child: FeatureCard(
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const DiseasePredictionScreen(),
                   ),
                 ),
-              );
-            },
-            icon: Icons.restaurant_menu_rounded,
-            title: "Recipes",
-            subtitle: "Culinary Guide",
-            color: const Color(0xFF2D3142), // Darker professional tone
-          ),
+                icon: Icons.filter_center_focus, // More "Scan-like" icon
+                title: "Identify",
+                subtitle: "Scan Species",
+                color: AppColors.primary,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: FeatureCard(
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const SustainableRecipeScreen(),
+                  ),
+                ),
+                icon: Icons.restaurant_menu_rounded,
+                title: "Recipes",
+                subtitle: "Culinary Guide",
+                color: const Color(0xFF2D3142), // Darker professional tone
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        Row(
+          children: [
+            Expanded(
+              child: FeatureCard(
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const GeoRecommenderScreen(),
+                  ),
+                ),
+                icon: Icons.map_rounded,
+                title: "Farming Guide",
+                subtitle: "Based on Location",
+                color: Colors.brown[600]!,
+              ),
+            ),
+          ],
         ),
       ],
     );

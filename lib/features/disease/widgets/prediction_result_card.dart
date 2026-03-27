@@ -7,7 +7,7 @@ import '../../../models/prediction_result.dart';
 class PredictionResultCard extends StatelessWidget {
   final PredictionResult result;
   final String imagePath;
-  final VoidCallback onMoreInfo;
+  final VoidCallback? onMoreInfo;
 
   const PredictionResultCard({
     super.key,
@@ -74,10 +74,11 @@ class PredictionResultCard extends StatelessWidget {
           const SizedBox(height: 12),
 
           // Action Button
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: result.hasError ? null : onMoreInfo,
+          if (onMoreInfo != null)
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: result.hasError ? null : onMoreInfo,
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,
                 foregroundColor: AppColors.primary,
