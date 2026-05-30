@@ -207,28 +207,7 @@ class _GeoRecommenderScreenState extends State<GeoRecommenderScreen> {
             Icons.water,
           ),
           const SizedBox(height: 16),
-          TextFormField(
-            initialValue: _selectedInputs['latitude'],
-            keyboardType: TextInputType.number,
-            decoration: InputDecoration(
-              labelText: 'Latitude (e.g. 34.05)',
-              prefixIcon: const Icon(Icons.location_on, color: Colors.grey),
-              filled: true,
-              fillColor: Colors.grey[50],
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(16),
-                borderSide: BorderSide.none,
-              ),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 16,
-              ),
-            ),
-            onChanged: (val) {
-              _selectedInputs['latitude'] = val;
-            },
-          ),
-          const SizedBox(height: 32),
+
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,

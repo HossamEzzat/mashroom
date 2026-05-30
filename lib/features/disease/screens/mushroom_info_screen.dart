@@ -90,6 +90,7 @@ class MushroomInfoScreenState extends State<MushroomInfoScreen> {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
+        heroTag: null,
         onPressed: () =>
             Share.share("Check out this ${mushroomData.mushroomName} I found!"),
         backgroundColor: const Color(0xffb65ec4),

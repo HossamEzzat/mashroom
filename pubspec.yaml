@@ -33,7 +33,6 @@ dependencies:
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.8
   intl:
   video_player:
   smooth_page_indicator:
@@ -42,7 +41,6 @@ dependencies:
   hive_flutter:
   readmore:
   flutter_rating_bar:
-  iconsax:
   flutter_staggered_grid_view:
   flutter_slidable:
   percent_indicator:
@@ -63,7 +61,6 @@ dependencies:
   dotted_border:
   card_swiper:
   syncfusion_flutter_gauges:
-  ionicons:
   image_picker:
   flutter_bloc: ^9.1.1
   equatable: ^2.0.8
@@ -74,6 +71,7 @@ dependencies:
   firebase_core: ^4.3.0
   firebase_auth: ^6.1.3
   cloud_firestore: ^6.1.1
+  geolocator: ^14.0.2
 
 dev_dependencies:
   flutter_test:

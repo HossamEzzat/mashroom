@@ -11,6 +11,7 @@ import '../../favorites/screens/favorites_screen.dart';
 import '../../recipes/screens/sustainable_recipe_screen.dart';
 import '../widgets/mushroom_grid_item.dart';
 import 'geo_recommender_screen.dart';
+import '../../crop_planner/screens/geo_crop_planner_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -345,9 +346,24 @@ class _HomeScreenState extends State<HomeScreen>
                   ),
                 ),
                 icon: Icons.map_rounded,
-                title: "Farming Guide",
+                title: "Mushroom Guide",
                 subtitle: "Based on Location",
                 color: Colors.brown[600]!,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: FeatureCard(
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const GeoCropPlannerScreen(),
+                  ),
+                ),
+                icon: Icons.agriculture_rounded,
+                title: "Crop Planner",
+                subtitle: "AI Optimization",
+                color: const Color(0xFF1B4332), // Dark Green
               ),
             ),
           ],

@@ -168,6 +168,7 @@ class EventScreenState extends State<EventScreen>
       floatingActionButton: FadeInUp(
         delay: const Duration(milliseconds: 500),
         child: FloatingActionButton.extended(
+          heroTag: null,
           onPressed: () => Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const AddEventScreen()),
@@ -190,14 +191,6 @@ class EventScreenState extends State<EventScreen>
       backgroundColor: Colors.white,
       elevation: 0,
       surfaceTintColor: Colors.transparent,
-      leading: IconButton(
-        icon: const Icon(
-          Icons.arrow_back_ios_new,
-          color: Colors.black,
-          size: 20,
-        ),
-        onPressed: () => widget.onTabChange?.call(0),
-      ),
       title: const Text(
         'Community Events',
         style: TextStyle(

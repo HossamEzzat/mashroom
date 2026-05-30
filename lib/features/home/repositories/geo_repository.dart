@@ -5,7 +5,10 @@ import '../../../core/constants/api_endpoints.dart';
 class GeoRepository {
   Future<Map<String, dynamic>> fetchOptions() async {
     try {
-      final response = await http.get(Uri.parse(ApiEndpoints.geoOptions)).timeout(const Duration(seconds: 15));
+      final response = await http.get(
+        Uri.parse(ApiEndpoints.geoOptions),
+        headers: {'Bypass-Tunnel-Reminder': 'true'},
+      ).timeout(const Duration(seconds: 15));
       if (response.statusCode == 200) {
         return jsonDecode(response.body);
       }
@@ -19,14 +22,17 @@ class GeoRepository {
     try {
       final response = await http.post(
         Uri.parse(ApiEndpoints.geoRecommend),
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+          'Content-Type': 'application/json',
+          'Bypass-Tunnel-Reminder': 'true'
+        },
         body: jsonEncode(data),
-      ).timeout(const Duration(seconds: 15));
+      ).timeout(const Duration(seconds: 60));
       
       if (response.statusCode == 200) {
         return jsonDecode(response.body);
       }
-      throw Exception('Server Error: ${response.statusCode}');
+      throw Exception('Server Error: ${response.statusCode} - ${response.body}');
     } catch (e) {
       throw Exception('Failed to get recommendations: ${e.toString()}');
     }

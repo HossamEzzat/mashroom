@@ -42,6 +42,7 @@ class MainScreenState extends State<MainScreen> {
       body: IndexedStack(index: _selectedIndex, children: _pages),
 
       floatingActionButton: FloatingActionButton(
+        heroTag: null,
         onPressed: () => _onItemTapped(1),
         backgroundColor: AppColors.primary,
         elevation: 4,
